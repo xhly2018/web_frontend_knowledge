@@ -1,45 +1,9 @@
 <style lang='css'>
   @import 'style/weui.wxss';
-.container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-}
   page{
-    background-color: #F8F8F8;
+    background-color: #eeeff4;
     font-size: 16px;
     font-family: -apple-system-font,Helvetica Neue,Helvetica,sans-serif;
-  }
-  .page__hd {
-    padding: 40px;
-  }
-  .page__bd {
-    padding-bottom: 40px;
-  }
-  .page__bd_spacing {
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-
-  .page__ft{
-    padding-bottom: 10px;
-    text-align: center;
-  }
-
-  .page__title {
-    text-align: left;
-    font-size: 20px;
-    font-weight: 400;
-  }
-
-  .page__desc {
-    margin-top: 5px;
-    color: #888888;
-    text-align: left;
-    font-size: 14px;
   }
 </style>
 
@@ -62,23 +26,27 @@ export default class extends wepy.app {
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
-      navigationBarTitleText: 'WeChat',
+      navigationBarTitleText: 'Web前端打卡',
       navigationBarTextStyle: 'black'
     },
     tabBar: {
-      position: 'top',
+      color: '#999999',
+      selectedColor: '#58b5f8',
       list: [{
         pagePath: 'pages/index',
-        text: '首页'
+        text: '首页',
+        iconPath: 'images/home.png',
+        selectedIconPath: 'images/home_HL.png'
       }, {
         pagePath: 'pages/index2',
-        text: '排行'
+        text: '排行',
+        iconPath: 'images/ranking.png',
+        selectedIconPath: 'images/ranking_HL.png'
       }, {
         pagePath: 'pages/index2',
-        text: '详情'
-      }, {
-        pagePath: 'pages/index2',
-        text: '分享'
+        text: '个人',
+        iconPath: 'images/person.png',
+        selectedIconPath: 'images/person_HL.png'
       }]
     }
   }
