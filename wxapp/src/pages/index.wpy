@@ -13,6 +13,7 @@
     background-color: #58b5f8;
     color: #fff;
     border-radius: 2px;
+    margin-bottom: 10px;
   }
   .panel_title {
     font-size: 12px;
@@ -74,7 +75,7 @@
     justify-content: center;
     align-items: center;
     font-size: 12px;
-    color: #aaaaaa;
+    color: #979797;
   }
   .answer_main {
     font-size: 14px;
@@ -92,14 +93,64 @@
     width: 20px;
     height: 20px;
   }
+  .panel_today {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 40px;
+  }
+  .check_sing {
+    font-size: 12px;
+    color: #979797;
+  }
 </style>
 
 <template>
   <view class="page">
-    <view class="clock_in">
+    <view class="clock_in" @tap="changePage">
       <text>立即打卡</text>
     </view>
     <view class="page__bd">
+      <view class="panel_content">
+        <view class="panel_today">
+          <text class="today_sing">今日已打卡</text>
+          <text class="check_sing">查看日签</text>
+        </view>
+        <view class="panel_person">
+          <view class="portrait"><image src="../images/head.jpeg"></image></view>
+          <view class="person_describe">
+            <text class="name">张星</text>
+            <text class="time">10小时前</text>
+          </view>
+        </view>
+        <view class="panel_answer">
+          <view class="panel_answer_item">
+            <view class="answer_title">
+              <image class="answer_icon" src="../images/right.png"></image>
+              <text>答对</text>
+            </view>
+            <text class="answer_main">1/2题</text>
+          </view>
+          <view class="panel_answer_item">
+            <view class="answer_title">
+              <image class="answer_icon" src="../images/time.png"></image>
+              <text>时长</text>
+            </view>
+            <text class="answer_main">00:32</text>
+          </view>
+          <view class="panel_answer_item">
+            <view class="answer_title">
+              <image class="answer_icon" src="../images/right.png"></image>
+              <text>得分</text>
+            </view>
+            <text class="answer_main">50分</text>
+          </view>
+        </view>
+        <view class="panel_number">
+          <text>已打卡59次</text>
+          <image class="badge" src="../images/badge.png"></image>
+        </view>
+      </view>
       <view class="panel_title">已有100人提交打卡</view>
       <view class="panel_content">
         <view class="panel_person">
@@ -192,7 +243,13 @@
 
     computed = {}
 
-    methods = {}
+    methods = {
+      changePage () {
+        wx.navigateTo({
+          url: 'article'
+        })
+      }
+    }
 
     events = {}
 
