@@ -24,14 +24,7 @@
   }
   .article_main {
     margin-top: 31px;
-  }
-  .scroll-view_H{
-    white-space: nowrap;
-  }
-  .scroll-view-item_H{
-    display: inline-block;
-    width: 100%;
-    height: auto;
+    height: 100%;
   }
   .article_bg {
     background-color: #ffffff;
@@ -48,14 +41,17 @@
     margin-top: 5px;
     margin-bottom: 10px;
   }
+  .article_height {
+    height: 100%;
+  }
 </style>
 
 <template>
-    <view>
+    <view style="height: 100%;">
       <view class="header">
         <view class="weui-flex">
           <view class="weui-flex__item">
-            <text>01</text>
+            <text>0{{index}}</text>
             <text class="small_10">/02</text>
           </view>
           <view class="weui-flex__item">
@@ -67,64 +63,68 @@
         </view>
       </view>
       <view class="article_main">
-        <scroll-view class="scroll-view_H" scroll-x style="width: 100%">
-          <view class="scroll-view-item_H bc_green">
-            <view class="article_bg">
-              <view class="weui-article__h3">【单选题】</view>
-              <view class="weui-article__p">
-                这是第一题
+        <swiper class="article_height" bindchange="changeIndex">
+          <swiper-item>
+            <view class="bc_green">
+              <view class="article_bg">
+                <view class="weui-article__h3">【单选题】</view>
+                <view class="weui-article__p">
+                  这是第一题
+                </view>
+              </view>
+              <view class="article_answer">
+                <radio-group name="radio">
+                  <view class="radio_item">
+                    <babel><radio value="radio1"/>A</babel>
+                    <view class="answer_item">这是第一题的答案</view>
+                  </view>
+                  <view class="radio_item">
+                    <babel><radio value="radio2"/>B</babel>
+                    <view class="answer_item">这是第二题的答案</view>
+                  </view>
+                  <view class="radio_item">
+                    <babel><radio value="radio3"/>C</babel>
+                    <view class="answer_item">这是第三题的答案</view>
+                  </view>
+                  <view class="radio_item">
+                    <babel><radio value="radio4"/>D</babel>
+                    <view class="answer_item">这是第四题的答案</view>
+                  </view>
+                </radio-group>
               </view>
             </view>
-            <view class="article_answer">
-              <radio-group name="radio">
-                <view class="radio_item">
-                  <babel><radio value="radio1"/>A</babel>
-                  <view class="answer_item">这是第一题的答案</view>
+          </swiper-item>
+          <swiper-item>
+            <view class="bc_red">
+              <view class="article_bg">
+                <view class="weui-article__h3">【多选题】</view>
+                <view class="weui-article__p">
+                  这是第二题
                 </view>
-                <view class="radio_item">
-                  <babel><radio value="radio2"/>B</babel>
-                  <view class="answer_item">这是第二题的答案</view>
-                </view>
-                <view class="radio_item">
-                  <babel><radio value="radio3"/>C</babel>
-                  <view class="answer_item">这是第三题的答案</view>
-                </view>
-                <view class="radio_item">
-                  <babel><radio value="radio4"/>D</babel>
-                  <view class="answer_item">这是第四题的答案</view>
-                </view>
-              </radio-group>
-            </view>
-          </view>
-          <view class="scroll-view-item_H bc_red">
-            <view class="article_bg">
-              <view class="weui-article__h3">【多选题】</view>
-              <view class="weui-article__p">
-                这是第二题
+              </view>
+              <view class="article_answer">
+                <checkbox-group name="checkbox">
+                  <view class="radio_item">
+                    <label><checkbox value="checkbox1"/>A</label>
+                    <view class="answer_item">这是第一题的答案</view>
+                  </view>
+                  <view class="radio_item">
+                    <label><checkbox value="checkbox2"/>B</label>
+                    <view class="answer_item">这是第二题的答案</view>
+                  </view>
+                  <view class="radio_item">
+                    <label><checkbox value="checkbox3"/>C</label>
+                    <view class="answer_item">这是第三题的答案</view>
+                  </view>
+                  <view class="radio_item">
+                    <label><checkbox value="checkbox4"/>D</label>
+                    <view class="answer_item">这是第四题的答案</view>
+                  </view>
+                </checkbox-group>
               </view>
             </view>
-            <view class="article_answer">
-              <checkbox-group name="checkbox">
-                <view class="radio_item">
-                  <label><checkbox value="checkbox1"/>A</label>
-                  <view class="answer_item">这是第一题的答案</view>
-                </view>
-                <view class="radio_item">
-                  <label><checkbox value="checkbox2"/>B</label>
-                  <view class="answer_item">这是第二题的答案</view>
-                </view>
-                <view class="radio_item">
-                  <label><checkbox value="checkbox3"/>C</label>
-                  <view class="answer_item">这是第三题的答案</view>
-                </view>
-                <view class="radio_item">
-                  <label><checkbox value="checkbox4"/>D</label>
-                  <view class="answer_item">这是第四题的答案</view>
-                </view>
-              </checkbox-group>
-            </view>
-          </view>
-        </scroll-view>
+          </swiper-item>
+        </swiper>
       </view>
     </view>
 </template>
@@ -142,12 +142,16 @@
     components = {}
 
     data = {
-      hello: ''
+      index: 1
     }
 
     computed = {}
 
-    methods = {}
+    methods = {
+      changeIndex (event) {
+        this.index = event.detail.current + 1
+      }
+    }
 
     events = {}
 
