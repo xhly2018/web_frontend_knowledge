@@ -58,7 +58,7 @@
             <text class="small_12">00:11</text>
           </view>
           <view class="weui-flex__item">
-            <button class="submit_btn">提交</button>
+            <button class="submit_btn" @tap="changePage">提交</button>
           </view>
         </view>
       </view>
@@ -148,8 +148,10 @@
     computed = {}
 
     methods = {
-      changeIndex (event) {
-        this.index = event.detail.current + 1
+      changePage () {
+        wx.navigateTo({
+          url: 'result'
+        })
       }
     }
 

@@ -1,0 +1,198 @@
+<style lang="css">
+  .result_banner {
+    width: 100%;
+    height: 150px;
+    position: relative;
+  }
+  .panel_result_bg {
+    width: 100%;
+    height: 100%;
+    background: #000;
+  }
+  .result_bg {
+    width: 100%;
+    height: 100%;
+    opacity:0.4;
+    filter: alpha(opacity=40);
+  }
+  .result_item {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score {
+    font-size: 26px;
+  }
+  .clock_times {
+    font-size: 12px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .sign {
+    width: 16px;
+    height: 16px;
+    margin-right: 2px;
+  }
+  .check_sign {
+    width: 80px;
+    border: 1px solid #ffffff;
+    font-size: 12px;
+    padding: 2px 0;
+    margin: 0 auto;
+  }
+  .panel_result {
+    background-color: #ffffff;
+    padding: 15px 10px;
+  }
+  .panel_answer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .panel_answer_item {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+  .answer_icon {
+    width: 16px;
+    height: 16px;
+  }
+  .answer_title {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    color: #979797;
+  }
+  .answer_main {
+    font-size: 14px;
+    color: #000;
+  }
+  .result_main {
+    background-color: #ffffff;
+    padding: 10px;
+    margin-top: 1px;
+  }
+  .result_title {
+    font-size: 14px;
+  }
+  .result_circle {
+    display: flex;
+    flex-direction: row;
+    padding: 20px 0;
+  }
+  .circle {
+    border: 1px solid #aaaaaa;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    margin-right: 10px;
+    font-size: 14px;
+  }
+  .circle_r {
+    border-color: #26987a;
+    color: #26987a;
+  }
+  .circle_f {
+    border-color: #ff5d28;
+    color: #ff5d28;
+  }
+  .return_index {
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    font-size: 12px;
+    color: #ffffff;
+    background-color: #00B7FF;
+    position: fixed;
+    bottom: 0;
+  }
+</style>
+
+<template>
+  <view>
+    <view class="result_banner">
+      <view class="panel_result_bg"><image class="result_bg" src="../images/result_bg.jpg" mode="top"></image></view>
+      <view class="result_item">
+        <view class="score"><text>50  分</text></view>
+        <view class="clock_times">
+          <image class="sign" src="../images/sign.png"></image>
+          <text>你已经打卡1次</text>
+        </view>
+        <view class="check_sign"><text>查看日签</text></view>
+      </view>
+    </view>
+    <view class="panel_result">
+      <view class="panel_answer">
+        <view class="panel_answer_item">
+          <view class="answer_title">
+            <image class="answer_icon" src="../images/right.png"></image>
+            <text>答对</text>
+          </view>
+          <text class="answer_main">1/2 题</text>
+        </view>
+        <view class="panel_answer_item">
+          <view class="answer_title">
+            <image class="answer_icon" src="../images/time.png"></image>
+            <text>时长</text>
+          </view>
+          <text class="answer_main">00:32</text>
+        </view>
+        <view class="panel_answer_item">
+          <view class="answer_title">
+            <image class="answer_icon" src="../images/right.png"></image>
+            <text>正确率</text>
+          </view>
+          <text class="answer_main">50%</text>
+        </view>
+      </view>
+    </view>
+    <view class="result_main">
+      <view class="result_title"><text>答题结果</text></view>
+      <view class="result_circle">
+        <view class="circle circle_r">1</view>
+        <view class="circle circle_f">2</view>
+      </view>
+    </view>
+    <view class="return_index">
+      <text>返回主页</text>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Result extends wepy.page {
+    config = {}
+
+    components = {}
+
+    data = {}
+
+    computed = {}
+
+    methods = {}
+
+    events = {}
+
+    onLoad() {
+
+    }
+  }
+</script>
