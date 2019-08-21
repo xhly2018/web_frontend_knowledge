@@ -165,11 +165,11 @@
     <view class="result_main">
       <view class="result_title"><text>答题结果</text></view>
       <view class="result_circle">
-        <view class="circle circle_r">1</view>
-        <view class="circle circle_f">2</view>
+        <view class="circle circle_r" @tap="jumpArticle(0)">1</view>
+        <view class="circle circle_f" @tap="jumpArticle(1)">2</view>
       </view>
     </view>
-    <view class="return_index">
+    <view class="return_index" @tap="jumpIndex">
       <text>返回主页</text>
     </view>
   </view>
@@ -187,7 +187,18 @@
 
     computed = {}
 
-    methods = {}
+    methods = {
+      jumpIndex () {
+        wx.switchTab({
+          url: 'index'
+        })
+      },
+      jumpArticle (current) {
+        wx.navigateTo({
+          url: 'article?current=' + current
+        })
+      }
+    }
 
     events = {}
 

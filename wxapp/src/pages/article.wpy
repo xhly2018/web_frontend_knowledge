@@ -44,6 +44,32 @@
   .article_height {
     height: 100%;
   }
+  .result_icon {
+    width: 18px;
+    height: 18px;
+    position: absolute;
+    top: 4px;
+  }
+  .answer_right {
+    color: #07c160;
+    font-size: 12px;
+    padding-left: 20px;
+  }
+  .answer_false {
+    color: #d81e06;
+    font-size: 12px;
+    padding-left: 20px;
+  }
+  .answers {
+    font-size: 12px;
+    margin-top: 20px;
+  }
+  .answer_right_green {
+    color: #07c160;
+  }
+  .answer_right_red {
+    color: #d81e06;
+  }
 </style>
 
 <template>
@@ -54,16 +80,24 @@
             <text>0{{index}}</text>
             <text class="small_10">/02</text>
           </view>
+<!--          <view class="weui-flex__item">-->
+<!--            <text class="small_12">00:11</text>-->
+<!--          </view>-->
+<!--          <view class="weui-flex__item">-->
+<!--            <button class="submit_btn" @tap="changePage">提交</button>-->
+<!--          </view>-->
           <view class="weui-flex__item">
-            <text class="small_12">00:11</text>
+            <image src="../images/smile.png" class="result_icon"></image>
+            <text class="answer_right">答对了</text>
           </view>
           <view class="weui-flex__item">
-            <button class="submit_btn" @tap="changePage">提交</button>
+            <image src="../images/cry.png" class="result_icon"></image>
+            <text class="answer_false">答错了</text>
           </view>
         </view>
       </view>
       <view class="article_main">
-        <swiper class="article_height" bindchange="changeIndex">
+        <swiper class="article_height" bindchange="changeIndex" current="{{currentIndex}}">
           <swiper-item>
             <view class="bc_green">
               <view class="article_bg">
@@ -89,6 +123,9 @@
                   <view class="radio_item">
                     <babel><radio value="radio4"/>D</babel>
                     <view class="answer_item">这是第四题的答案</view>
+                  </view>
+                  <view class="answers">
+                    <text class="answer_right_green">回答正确!</text>
                   </view>
                 </radio-group>
               </view>
@@ -120,6 +157,11 @@
                     <label><checkbox value="checkbox4"/>D</label>
                     <view class="answer_item">这是第四题的答案</view>
                   </view>
+                  <view class="answers">
+                    <text class="answer_right_red">回答错误! </text>
+                    <text>正确答案是 </text>
+                    <text class="answer_right_green">A, D</text>
+                  </view>
                 </checkbox-group>
               </view>
             </view>
@@ -142,12 +184,16 @@
     components = {}
 
     data = {
-      index: 1
+      index: 1,
+      currentIndex: 0
     }
 
     computed = {}
 
     methods = {
+      changeIndex (event) {
+        this.index = event.detail.current + 1
+      },
       changePage () {
         wx.navigateTo({
           url: 'result'
@@ -157,8 +203,9 @@
 
     events = {}
 
-    onLoad() {
-
+    onLoad(option) {
+      this.currentIndex = parseInt(option.current)
+      this.index = parseInt(option.current) + 1
     }
   }
 </script>

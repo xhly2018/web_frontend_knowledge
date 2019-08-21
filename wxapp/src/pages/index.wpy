@@ -116,41 +116,43 @@
           <text class="today_sing">今日已打卡</text>
           <text class="check_sing">查看日签</text>
         </view>
-        <view class="panel_person">
-          <view class="portrait">
-            <open-data type="userAvatarUrl"></open-data>
-          </view>
-          <view class="person_describe">
-            <open-data type="userNickName"></open-data>
-            <text class="time">10小时前</text>
-          </view>
-        </view>
-        <view class="panel_answer">
-          <view class="panel_answer_item">
-            <view class="answer_title">
-              <image class="answer_icon" src="../images/right.png"></image>
-              <text>答对</text>
+        <view @tap="jumpResult">
+          <view class="panel_person">
+            <view class="portrait">
+              <open-data type="userAvatarUrl"></open-data>
             </view>
-            <text class="answer_main">1/2题</text>
-          </view>
-          <view class="panel_answer_item">
-            <view class="answer_title">
-              <image class="answer_icon" src="../images/time.png"></image>
-              <text>时长</text>
+            <view class="person_describe">
+              <open-data type="userNickName"></open-data>
+              <text class="time">10小时前</text>
             </view>
-            <text class="answer_main">00:32</text>
           </view>
-          <view class="panel_answer_item">
-            <view class="answer_title">
-              <image class="answer_icon" src="../images/right.png"></image>
-              <text>得分</text>
+          <view class="panel_answer">
+            <view class="panel_answer_item">
+              <view class="answer_title">
+                <image class="answer_icon" src="../images/right.png"></image>
+                <text>答对</text>
+              </view>
+              <text class="answer_main">1/2题</text>
             </view>
-            <text class="answer_main">50分</text>
+            <view class="panel_answer_item">
+              <view class="answer_title">
+                <image class="answer_icon" src="../images/time.png"></image>
+                <text>时长</text>
+              </view>
+              <text class="answer_main">00:32</text>
+            </view>
+            <view class="panel_answer_item">
+              <view class="answer_title">
+                <image class="answer_icon" src="../images/right.png"></image>
+                <text>得分</text>
+              </view>
+              <text class="answer_main">50分</text>
+            </view>
           </view>
-        </view>
-        <view class="panel_number">
-          <text>已打卡59次</text>
-          <image class="badge" src="../images/badge.png"></image>
+          <view class="panel_number">
+            <text>已打卡59次</text>
+            <image class="badge" src="../images/badge.png"></image>
+          </view>
         </view>
       </view>
       <view class="panel_title">已有100人提交打卡</view>
@@ -246,7 +248,12 @@
     methods = {
       changePage () {
         wx.navigateTo({
-          url: 'article'
+          url: 'article?current=0'
+        })
+      },
+      jumpResult () {
+        wx.navigateTo({
+          url: 'result'
         })
       }
     }
@@ -254,14 +261,7 @@
     events = {}
 
     onLoad() {
-      // wx.getUserInfo({
-      //   success: function(res) {
-      //     console.log(res)
-      //   },
-      //   fail: function (res) {
-      //     console.log(res)
-      //   }
-      // })
+
     }
   }
 </script>
