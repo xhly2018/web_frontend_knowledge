@@ -37,7 +37,7 @@
     margin-top: 10px;
   }
   .answer_item {
-    font-size: 12px;
+    font-size: 14px;
     margin-top: 5px;
     margin-bottom: 10px;
   }
@@ -78,90 +78,87 @@
         <view class="weui-flex">
           <view class="weui-flex__item">
             <text>0{{index}}</text>
-            <text class="small_10">/02</text>
-          </view>
-<!--          <view class="weui-flex__item">-->
-<!--            <text class="small_12">00:11</text>-->
-<!--          </view>-->
-<!--          <view class="weui-flex__item">-->
-<!--            <button class="submit_btn" @tap="changePage">提交</button>-->
-<!--          </view>-->
-          <view class="weui-flex__item">
-            <image src="../images/smile.png" class="result_icon"></image>
-            <text class="answer_right">答对了</text>
+            <text class="small_10">/0{{articleList.length}}</text>
           </view>
           <view class="weui-flex__item">
-            <image src="../images/cry.png" class="result_icon"></image>
-            <text class="answer_false">答错了</text>
+            <text class="small_12">00:11</text>
           </view>
+          <view class="weui-flex__item">
+            <button class="submit_btn" @tap="changePage">提交</button>
+          </view>
+<!--          <view class="weui-flex__item">-->
+<!--            <image src="../images/smile.png" class="result_icon"></image>-->
+<!--            <text class="answer_right">答对了</text>-->
+<!--          </view>-->
+<!--          <view class="weui-flex__item">-->
+<!--            <image src="../images/cry.png" class="result_icon"></image>-->
+<!--            <text class="answer_false">答错了</text>-->
+<!--          </view>-->
         </view>
       </view>
       <view class="article_main">
         <swiper class="article_height" bindchange="changeIndex" current="{{currentIndex}}">
-          <swiper-item>
+          <swiper-item wx:for="{{articleList}}" wx:key="index" wx:for-index="index" wx:for-item="item">
             <view class="bc_green">
               <view class="article_bg">
-                <view class="weui-article__h3">【单选题】</view>
+                <view class="weui-article__h3">{{item.questionType == 0 ? '【单选题】' : '【多选题】'}}</view>
                 <view class="weui-article__p">
-                  这是第一题
+                  {{item.question}}
+                </view>
+                <view class="weui-article__p" wx:if="{{item.problemPicture !== ''}}">
+                  <image class="weui-article__img" src="{{item.problemPicture}}" mode="widthFix" style="width: 100%;" />
                 </view>
               </view>
-              <view class="article_answer">
-                <radio-group name="radio">
+              <view class="article_answer" wx:if="{{item.questionType == 0}}">
+                <radio-group name="radio" bindchange="radioChange">
                   <view class="radio_item">
-                    <babel><radio value="radio1"/>A</babel>
-                    <view class="answer_item">这是第一题的答案</view>
-                  </view>
-                  <view class="radio_item">
-                    <babel><radio value="radio2"/>B</babel>
-                    <view class="answer_item">这是第二题的答案</view>
+                    <babel><radio value="A"/>A</babel>
+                    <view class="answer_item">{{item.optionA}}</view>
                   </view>
                   <view class="radio_item">
-                    <babel><radio value="radio3"/>C</babel>
-                    <view class="answer_item">这是第三题的答案</view>
+                    <babel><radio value="B"/>B</babel>
+                    <view class="answer_item">{{item.optionB}}</view>
                   </view>
                   <view class="radio_item">
-                    <babel><radio value="radio4"/>D</babel>
-                    <view class="answer_item">这是第四题的答案</view>
+                    <babel><radio value="C"/>C</babel>
+                    <view class="answer_item">{{item.optionC}}</view>
                   </view>
-                  <view class="answers">
-                    <text class="answer_right_green">回答正确!</text>
+                  <view class="radio_item">
+                    <babel><radio value="D}"/>D</babel>
+                    <view class="answer_item">{{item.optionD}}</view>
                   </view>
+<!--                  <view class="answers">-->
+<!--                    <text class="answer_right_green">回答正确!</text>-->
+<!--                    <text class="answer_right_red">回答错误! </text>-->
+<!--                    <text>正确答案是 </text>-->
+<!--                    <text class="answer_right_green">A, D</text>-->
+<!--                  </view>-->
                 </radio-group>
               </view>
-            </view>
-          </swiper-item>
-          <swiper-item>
-            <view class="bc_red">
-              <view class="article_bg">
-                <view class="weui-article__h3">【多选题】</view>
-                <view class="weui-article__p">
-                  这是第二题
-                </view>
-              </view>
-              <view class="article_answer">
-                <checkbox-group name="checkbox">
-                  <view class="radio_item">
-                    <label><checkbox value="checkbox1"/>A</label>
-                    <view class="answer_item">这是第一题的答案</view>
+              <view class="article_answer" wx:if="{{item.questionType == 1}}">
+                <checkbox-group name="checkbox" bindchange="checkboxChange">
+                  <view class="checkbox_item">
+                    <babel><checkbox value="A"/>A</babel>
+                    <view class="answer_item">{{item.optionA}}</view>
                   </view>
-                  <view class="radio_item">
-                    <label><checkbox value="checkbox2"/>B</label>
-                    <view class="answer_item">这是第二题的答案</view>
+                  <view class="checkbox_item">
+                    <babel><checkbox value="B"/>B</babel>
+                    <view class="answer_item">{{item.optionB}}</view>
                   </view>
-                  <view class="radio_item">
-                    <label><checkbox value="checkbox3"/>C</label>
-                    <view class="answer_item">这是第三题的答案</view>
+                  <view class="checkbox_item">
+                    <babel><checkbox value="C"/>C</babel>
+                    <view class="answer_item">{{item.optionC}}</view>
                   </view>
-                  <view class="radio_item">
-                    <label><checkbox value="checkbox4"/>D</label>
-                    <view class="answer_item">这是第四题的答案</view>
+                  <view class="checkbox_item">
+                    <babel><checkbox value="D"/>D</babel>
+                    <view class="answer_item">{{item.optionD}}</view>
                   </view>
-                  <view class="answers">
-                    <text class="answer_right_red">回答错误! </text>
-                    <text>正确答案是 </text>
-                    <text class="answer_right_green">A, D</text>
-                  </view>
+                  <!--                  <view class="answers">-->
+                  <!--                    <text class="answer_right_green">回答正确!</text>-->
+                  <!--                    <text class="answer_right_red">回答错误! </text>-->
+                  <!--                    <text>正确答案是 </text>-->
+                  <!--                    <text class="answer_right_green">A, D</text>-->
+                  <!--                  </view>-->
                 </checkbox-group>
               </view>
             </view>
@@ -185,10 +182,14 @@
 
     data = {
       index: 1,
-      currentIndex: 0
+      currentIndex: 0,
+      articleList: [],
+      answerList: [],
     }
 
-    computed = {}
+    computed = {
+
+    }
 
     methods = {
       changeIndex (event) {
@@ -198,6 +199,14 @@
         wx.navigateTo({
           url: 'result'
         })
+      },
+      radioChange (e) {
+        this.answerList[this.index] = e.detail.value;
+        console.log('选择的答案：', this.answerList)
+      },
+      checkboxChange(e) {
+        this.answerList[this.index] = e.detail.value.sort().join(",")
+        console.log('选择的答案：', this.answerList)
       }
     }
 
@@ -206,6 +215,17 @@
     onLoad(option) {
       this.currentIndex = parseInt(option.current)
       this.index = parseInt(option.current) + 1
+      let that = this
+      // 从数据库读取题目
+      wx.cloud.init() // 初始化数据库
+      const db = wx.cloud.database()
+      db.collection('article')
+        .get({
+          success: function (articleRes) {
+            that.articleList = articleRes.data
+            that.$apply()
+          }
+        })
     }
   }
 </script>
