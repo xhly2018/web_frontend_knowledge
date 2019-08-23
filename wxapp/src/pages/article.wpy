@@ -7,14 +7,17 @@
     background-color: #ffffff;
     padding-bottom: 5px;
   }
+
   .small_10 {
     font-size: 10px;
     color: #aaaaaa;
   }
+
   .small_12 {
     font-size: 12px;
     color: #aaaaaa;
   }
+
   .submit_btn {
     font-size: 10px;
     width: 50px;
@@ -22,154 +25,192 @@
     line-height: 20px;
     background-color: #ffffff;
   }
+
   .article_main {
     margin-top: 31px;
     height: 100%;
   }
+
+  .article_page {
+    overflow: auto;
+  }
+
   .article_bg {
     background-color: #ffffff;
     padding: 10px;
   }
+
   .article_answer {
     padding: 10px;
   }
+
   .radio_item {
     margin-top: 10px;
   }
+
   .answer_item {
     font-size: 14px;
     margin-top: 5px;
     margin-bottom: 10px;
   }
+
   .article_height {
     height: 100%;
   }
+
   .result_icon {
     width: 18px;
     height: 18px;
     position: absolute;
     top: 4px;
   }
+
   .answer_right {
     color: #07c160;
     font-size: 12px;
     padding-left: 20px;
   }
+
   .answer_false {
     color: #d81e06;
     font-size: 12px;
     padding-left: 20px;
   }
+
   .answers {
     font-size: 12px;
-    margin-top: 20px;
+    padding: 0 10px 20px 10px;
   }
+
   .answer_right_green {
     color: #07c160;
   }
+
   .answer_right_red {
     color: #d81e06;
   }
 </style>
 
 <template>
-    <view style="height: 100%;">
-      <view class="header">
-        <view class="weui-flex">
-          <view class="weui-flex__item">
-            <text>0{{index}}</text>
-            <text class="small_10">/0{{articleList.length}}</text>
-          </view>
-          <view class="weui-flex__item">
-            <text class="small_12">00:11</text>
-          </view>
-          <view class="weui-flex__item">
-            <button class="submit_btn" @tap="changePage">提交</button>
-          </view>
-<!--          <view class="weui-flex__item">-->
-<!--            <image src="../images/smile.png" class="result_icon"></image>-->
-<!--            <text class="answer_right">答对了</text>-->
-<!--          </view>-->
-<!--          <view class="weui-flex__item">-->
-<!--            <image src="../images/cry.png" class="result_icon"></image>-->
-<!--            <text class="answer_false">答错了</text>-->
-<!--          </view>-->
+  <view style="height: 100%;">
+    <view class="header">
+      <view class="weui-flex">
+        <view class="weui-flex__item">
+          <text>0{{index}}</text>
+          <text class="small_10">/0{{articleList.length}}</text>
+        </view>
+        <view class="weui-flex__item" wx:if="{{!completed}}">
+          <text class="small_12">{{currentTime}}</text>
+        </view>
+        <view class="weui-flex__item" wx:if="{{!completed}}">
+          <button class="submit_btn" @tap="submitAnswer">提交</button>
+        </view>
+        <view class="weui-flex__item" wx:if="{{completed && currentAnswer === 0}}">
+          <image src="../images/smile.png" class="result_icon"></image>
+          <text class="answer_right">答对了</text>
+        </view>
+        <view class="weui-flex__item" wx:if="{{completed && currentAnswer === 1}}">
+          <image src="../images/cry.png" class="result_icon"></image>
+          <text class="answer_false">答错了</text>
         </view>
       </view>
-      <view class="article_main">
-        <swiper class="article_height" bindchange="changeIndex" current="{{currentIndex}}">
-          <swiper-item wx:for="{{articleList}}" wx:key="index" wx:for-index="index" wx:for-item="item">
-            <view class="bc_green">
-              <view class="article_bg">
-                <view class="weui-article__h3">{{item.questionType == 0 ? '【单选题】' : '【多选题】'}}</view>
-                <view class="weui-article__p">
-                  {{item.question}}
-                </view>
-                <view class="weui-article__p" wx:if="{{item.problemPicture !== ''}}">
-                  <image class="weui-article__img" src="{{item.problemPicture}}" mode="widthFix" style="width: 100%;" />
-                </view>
+    </view>
+    <view class="article_main">
+      <swiper class="article_height" bindchange="changeIndex" current="{{currentIndex}}">
+        <swiper-item class="article_page" wx:for="{{articleList}}" wx:key="index" wx:for-index="index"
+                     wx:for-item="item">
+          <view class="bc_green">
+            <view class="article_bg">
+              <view class="weui-article__h3">{{item.questionType == 0 ? '【单选题】' : '【多选题】'}}</view>
+              <view class="weui-article__p">
+                {{item.question}}
               </view>
-              <view class="article_answer" wx:if="{{item.questionType == 0}}">
-                <radio-group name="radio" bindchange="radioChange">
-                  <view class="radio_item">
-                    <babel><radio value="A"/>A</babel>
-                    <view class="answer_item">{{item.optionA}}</view>
-                  </view>
-                  <view class="radio_item">
-                    <babel><radio value="B"/>B</babel>
-                    <view class="answer_item">{{item.optionB}}</view>
-                  </view>
-                  <view class="radio_item">
-                    <babel><radio value="C"/>C</babel>
-                    <view class="answer_item">{{item.optionC}}</view>
-                  </view>
-                  <view class="radio_item">
-                    <babel><radio value="D}"/>D</babel>
-                    <view class="answer_item">{{item.optionD}}</view>
-                  </view>
-<!--                  <view class="answers">-->
-<!--                    <text class="answer_right_green">回答正确!</text>-->
-<!--                    <text class="answer_right_red">回答错误! </text>-->
-<!--                    <text>正确答案是 </text>-->
-<!--                    <text class="answer_right_green">A, D</text>-->
-<!--                  </view>-->
-                </radio-group>
-              </view>
-              <view class="article_answer" wx:if="{{item.questionType == 1}}">
-                <checkbox-group name="checkbox" bindchange="checkboxChange">
-                  <view class="checkbox_item">
-                    <babel><checkbox value="A"/>A</babel>
-                    <view class="answer_item">{{item.optionA}}</view>
-                  </view>
-                  <view class="checkbox_item">
-                    <babel><checkbox value="B"/>B</babel>
-                    <view class="answer_item">{{item.optionB}}</view>
-                  </view>
-                  <view class="checkbox_item">
-                    <babel><checkbox value="C"/>C</babel>
-                    <view class="answer_item">{{item.optionC}}</view>
-                  </view>
-                  <view class="checkbox_item">
-                    <babel><checkbox value="D"/>D</babel>
-                    <view class="answer_item">{{item.optionD}}</view>
-                  </view>
-                  <!--                  <view class="answers">-->
-                  <!--                    <text class="answer_right_green">回答正确!</text>-->
-                  <!--                    <text class="answer_right_red">回答错误! </text>-->
-                  <!--                    <text>正确答案是 </text>-->
-                  <!--                    <text class="answer_right_green">A, D</text>-->
-                  <!--                  </view>-->
-                </checkbox-group>
+              <view class="weui-article__p" wx:if="{{item.problemPicture !== ''}}">
+                <image class="weui-article__img" src="{{item.problemPicture}}" mode="widthFix" style="width: 100%;"/>
               </view>
             </view>
-          </swiper-item>
-        </swiper>
-      </view>
+            <view class="article_answer" wx:if="{{item.questionType == 0}}">
+              <radio-group name="radio" bindchange="radioChange">
+                <view class="radio_item">
+                  <babel>
+                    <radio value="A"/>
+                    A
+                  </babel>
+                  <view class="answer_item">{{item.optionA}}</view>
+                </view>
+                <view class="radio_item">
+                  <babel>
+                    <radio value="B"/>
+                    B
+                  </babel>
+                  <view class="answer_item">{{item.optionB}}</view>
+                </view>
+                <view class="radio_item">
+                  <babel>
+                    <radio value="C"/>
+                    C
+                  </babel>
+                  <view class="answer_item">{{item.optionC}}</view>
+                </view>
+                <view class="radio_item">
+                  <babel>
+                    <radio value="D}"/>
+                    D
+                  </babel>
+                  <view class="answer_item">{{item.optionD}}</view>
+                </view>
+              </radio-group>
+            </view>
+            <view class="article_answer" wx:if="{{item.questionType == 1}}">
+              <checkbox-group name="checkbox" bindchange="checkboxChange">
+                <view class="checkbox_item">
+                  <babel>
+                    <checkbox value="A"/>
+                    A
+                  </babel>
+                  <view class="answer_item">{{item.optionA}}</view>
+                </view>
+                <view class="checkbox_item">
+                  <babel>
+                    <checkbox value="B"/>
+                    B
+                  </babel>
+                  <view class="answer_item">{{item.optionB}}</view>
+                </view>
+                <view class="checkbox_item">
+                  <babel>
+                    <checkbox value="C"/>
+                    C
+                  </babel>
+                  <view class="answer_item">{{item.optionC}}</view>
+                </view>
+                <view class="checkbox_item">
+                  <babel>
+                    <checkbox value="D"/>
+                    D
+                  </babel>
+                  <view class="answer_item">{{item.optionD}}</view>
+                </view>
+              </checkbox-group>
+            </view>
+            <view class="answers" wx:if="{{completed}}">
+              <text class="answer_right_green" wx:if="{{item.isRight === 0}}">回答正确!</text>
+              <block wx:if="{{item.isRight === 1}}">
+                <text class="answer_right_red">回答错误!</text>
+                <text>正确答案是</text>
+                <text class="answer_right_green">{{item.answer}}</text>
+              </block>
+            </view>
+          </view>
+        </swiper-item>
+      </swiper>
     </view>
+  </view>
 </template>
 
 <script>
   import wepy from 'wepy'
+  import {NewRecord, GetArticle, CreateRecord, GetRecord, IncrUserClockInDay} from '../store/db'
 
   export default class Article extends wepy.page {
     config = {
@@ -181,31 +222,75 @@
     components = {}
 
     data = {
+      currentTime: '',
       index: 1,
       currentIndex: 0,
       articleList: [],
       answerList: [],
+      currentAnswer: -1,
+      completed: false // 是否已做题
     }
 
-    computed = {
-
-    }
+    computed = {}
 
     methods = {
-      changeIndex (event) {
+      changeIndex(event) {
         this.index = event.detail.current + 1
+        this.currentAnswer = this.articleList[this.index - 1].isRight
+        this.$apply()
       },
-      changePage () {
-        wx.navigateTo({
-          url: 'result'
-        })
+      submitAnswer() {
+        let that = this
+        if (this.answerList.length === this.articleList.length) {
+          // 提交
+          let timestamp = (new Date()).getTime()
+          let answerRight = 0 // 答对题数
+          let questionIdList = [] // 问题id列表
+          let answerList = [] // 答案列表
+          for (let i in this.articleList) {
+            questionIdList.push(this.articleList[i]._id)
+            answerList.push(this.articleList[i].answer)
+            if (this.articleList[i].answer === this.answerList[i]) {
+              answerRight++
+            }
+          }
+          let score = parseInt((answerRight / this.articleList.length) * 100)
+          let record = NewRecord()
+          record.userId = wx.getAccountInfoSync().miniProgram.appId // 用户ID
+          record.recordDatetime = timestamp // 打卡时间
+          record.answerRight = answerRight // 答对题数
+          record.answerDuration = that.currentTime // 答题时间
+          record.score = score // 得分
+          record.questionTotal = that.articleList.length // 总题数
+          record.questionIdList = questionIdList // 问题id列表
+          record.answerList = that.answerList // 答案列表
+          record.clockInDeadline = that.getNowDate()
+
+          CreateRecord(record).then(function (res) {
+            console.log('创建成功：', res)
+            // 更新打卡天数
+            IncrUserClockInDay(wx.getAccountInfoSync().miniProgram.appId).then(function (res) {
+              console.log('打卡天数111+1')
+            })
+            wx.navigateTo({
+              url: 'result'
+            })
+          })
+        } else {
+          // 做题不完整，无法提交
+          wx.showToast({
+            title: '请作答完毕后再提交',
+            icon: 'none',
+            duration: 1000
+          })
+        }
       },
-      radioChange (e) {
-        this.answerList[this.index] = e.detail.value;
+      radioChange(e) {
+        this.answerList[this.index - 1] = e.detail.value
         console.log('选择的答案：', this.answerList)
       },
       checkboxChange(e) {
-        this.answerList[this.index] = e.detail.value.sort().join(",")
+        this.answerList[this.index - 1] = e.detail.value.sort().join(',')
         console.log('选择的答案：', this.answerList)
       }
     }
@@ -213,19 +298,68 @@
     events = {}
 
     onLoad(option) {
+      let that = this
       this.currentIndex = parseInt(option.current)
       this.index = parseInt(option.current) + 1
-      let that = this
+      this.$apply()
       // 从数据库读取题目
-      wx.cloud.init() // 初始化数据库
-      const db = wx.cloud.database()
-      db.collection('article')
-        .get({
-          success: function (articleRes) {
-            that.articleList = articleRes.data
+      GetArticle().then(function (articleRes) {
+        that.articleList = articleRes.data
+        that.$apply()
+        if (option.recordId !== undefined) {
+          // 有记录，页面显示已做
+          that.completed = true
+          GetRecord(option.recordId).then(function(recordRes) {
+            // 是否答正确了
+            for (let i in recordRes.data.answerList) {
+              if (recordRes.data.answerList[i] === that.articleList[i].answer) {
+                that.articleList[i].isRight = 0
+              } else {
+                that.articleList[i].isRight = 1
+              }
+            }
+            that.currentAnswer = that.articleList[that.index - 1].isRight
             that.$apply()
-          }
-        })
+          })
+        } else {
+          // 没记录，没做题
+          that.timeFun()
+        }
+      })
+    }
+
+    // 时间计时器
+    timeFun() {
+      let sec = 0
+      let that = this
+      setInterval(function () {
+        sec++
+        let date = new Date(0, 0)
+        date.setSeconds(sec)
+        let h = date.getHours()
+        let m = date.getMinutes()
+        let s = date.getSeconds()
+        that.currentTime = that.twoChar(h) + ':' + that.twoChar(m) + ':' + that.twoChar(s)
+        that.$apply()
+      }, 1000)
+    }
+
+    twoChar(n) {
+      return n >= 10 ? n : '0' + n
+    }
+
+    getNowDate() {
+      let date = new Date()
+      let nowMonth = date.getMonth() + 1
+      let strDate = date.getDate()
+      if (nowMonth >= 1 && nowMonth <= 9) {
+        nowMonth = '0' + nowMonth
+      }
+      if (strDate >= 0 && strDate <= 9) {
+        strDate = '0' + strDate
+      }
+      let nowDate = date.getFullYear() + nowMonth + strDate
+      return nowDate
     }
   }
 </script>

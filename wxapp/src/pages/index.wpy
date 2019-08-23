@@ -4,6 +4,7 @@
     margin-left: 5%;
     margin-top: 20px;
   }
+
   .clock_in {
     width: 100%;
     height: 48px;
@@ -15,60 +16,72 @@
     border-radius: 2px;
     margin-bottom: 10px;
   }
+
   .panel_title {
     font-size: 12px;
     line-height: 30px;
     color: #979797;
     margin-top: 10px;
   }
+
   .panel_content {
     padding: 15px;
     background-color: #fff;
     margin-bottom: 15px;
     border-radius: 2px;
   }
+
   .panel_person {
     height: 50px;
     display: flex;
     flex-direction: row;
   }
+
   .portrait {
     width: 50px;
     height: 50px;
   }
-  .portrait>image {
+
+  .portrait > image {
     width: 100%;
     height: 100%;
     border-radius: 50%;
   }
+
   .person_describe {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     margin-left: 10px;
   }
+
   .name {
     font-size: 14px;
   }
+
   .time {
     font-size: 12px;
     color: #aaaaaa;
   }
+
   .panel_answer {
     margin-top: 10px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
   }
+
   .panel_answer_item {
     display: flex;
     flex-direction: column;
     text-align: center;
   }
+
   .answer_icon {
     width: 16px;
     height: 16px;
   }
+
   .answer_title {
     display: flex;
     flex-direction: row;
@@ -77,10 +90,12 @@
     font-size: 12px;
     color: #979797;
   }
+
   .answer_main {
     font-size: 14px;
     color: #000;
   }
+
   .panel_number {
     display: flex;
     flex-direction: row;
@@ -89,16 +104,19 @@
     color: #aaaaaa;
     margin-top: 20px;
   }
+
   .badge {
     width: 20px;
     height: 20px;
   }
+
   .panel_today {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     height: 40px;
   }
+
   .check_sing {
     font-size: 12px;
     color: #979797;
@@ -125,7 +143,7 @@
             </view>
             <view class="person_describe">
               <open-data type="userNickName"></open-data>
-              <text class="time">10小时前</text>
+              <text class="time">{{recordList.recordDatetime}}</text>
             </view>
           </view>
           <view class="panel_answer">
@@ -134,25 +152,25 @@
                 <image class="answer_icon" src="../images/right.png"></image>
                 <text>答对</text>
               </view>
-              <text class="answer_main">1/2题</text>
+              <text class="answer_main">{{recordList.answerRight}}/{{recordList.questionTotal}}题</text>
             </view>
             <view class="panel_answer_item">
               <view class="answer_title">
                 <image class="answer_icon" src="../images/time.png"></image>
                 <text>时长</text>
               </view>
-              <text class="answer_main">00:32</text>
+              <text class="answer_main">{{recordList.answerDuration}}</text>
             </view>
             <view class="panel_answer_item">
               <view class="answer_title">
                 <image class="answer_icon" src="../images/right.png"></image>
                 <text>得分</text>
               </view>
-              <text class="answer_main">50分</text>
+              <text class="answer_main">{{recordList.score}}分</text>
             </view>
           </view>
           <view class="panel_number">
-            <text>已打卡59次</text>
+            <text>已打卡{{clockInDay}}次</text>
             <image class="badge" src="../images/badge.png"></image>
           </view>
         </view>
@@ -160,7 +178,9 @@
       <view class="panel_title">已有100人提交打卡</view>
       <view class="panel_content">
         <view class="panel_person">
-          <view class="portrait"><image src="../images/head.jpeg"></image></view>
+          <view class="portrait">
+            <image src="../images/head.jpeg"></image>
+          </view>
           <view class="person_describe">
             <text class="name">白衣少年</text>
             <text class="time">14分钟前</text>
@@ -196,7 +216,9 @@
       </view>
       <view class="panel_content">
         <view class="panel_person">
-          <view class="portrait"><image src="../images/head.jpeg"></image></view>
+          <view class="portrait">
+            <image src="../images/head.jpeg"></image>
+          </view>
           <view class="person_describe">
             <text class="name">白衣少年</text>
             <text class="time">14分钟前</text>
@@ -237,6 +259,8 @@
 
 <script>
   import wepy from 'wepy'
+  import {GetUser, CreateUser, GetCurrentRecord} from '../store/db'
+
   export default class Index extends wepy.page {
     config = {}
 
@@ -244,76 +268,105 @@
 
     data = {
       canIUse: wx.canIUse('button.open-type.getUserInfo'),
-      clockInState: false
+      clockInState: false,
+      recordList: {},
+      clockInDay: 0
     }
     computed = {}
 
     methods = {
-      changePage () {
+      changePage() {
         wx.navigateTo({
           url: 'article?current=0'
         })
       },
-      jumpResult () {
+      jumpResult() {
         wx.navigateTo({
           url: 'result'
         })
       },
-      bindGetUserInfo (e) {
+      bindGetUserInfo(e) {
         console.log(e.detail.userInfo)
       }
     }
 
-    events = {
-
-    }
+    events = {}
 
     onLoad() {
       const that = this
-      wx.cloud.init() // 初始化数据库
-      const db = wx.cloud.database()
       wx.getSetting({
         success(res) {
           if (res.authSetting['scope.userInfo']) {
             // 已经授权，可以直接调用 getUserInfo 获取头像昵称
             wx.getUserInfo({
-              success: function(userInfoRes) {
+              success: function (userInfoRes) {
                 const accountInfo = wx.getAccountInfoSync() // 用户ID
                 // 查看数据库是否有该用户
-                db.collection('user').where({
-                  userId: accountInfo.miniProgram.appId
+                GetUser(accountInfo.miniProgram.appId).then(function (userRes) {
+                  if (userRes.data.length === 0) {
+                    CreateUser(accountInfo, userInfoRes.userInfo).then(function () {
+                      console.log('用户创建成功！')
+                      that.clockInState = true
+                      that.$apply()
+                    })
+                  } else {
+                    // 有该用户
+                    console.log('用户已存在！')
+                    that.clockInDay = userRes.data[0].clockInDay
+                    that.$apply()
+                    that.getClockState(accountInfo.miniProgram.appId)
+                  }
                 })
-                  .get({
-                    success: function(userRes) {
-                      if (userRes.data.length === 0) {
-                        db.collection('user').add({
-                          // data 字段表示需新增的 JSON 数据
-                          data: {
-                            userId: accountInfo.miniProgram.appId,
-                            userName: userInfoRes.userInfo.nickName, // 用户名
-                            headPortrait: userInfoRes.userInfo.avatarUrl, // 头像
-                            clockInDay: 0, // 打卡天数
-                            clockInDeadline: 0 // 打卡Deadline
-                          },
-                          success: function(res) {},
-                          fail: function (res) {}
-                        })
-                      } else {
-                        // 有该用户
-                        that.getClockState(accountInfo.miniProgram.appId)
-                      }
-                    }
-                  })
               }
             })
           } else {
             // 没有授权
+            wx.showToast({
+              title: '没有授权',
+              icon: 'success',
+              duration: 2000
+            })
           }
         }
       })
     }
-    getClockState (appId) {
+
+    getClockState(appId) {
       let that = this
+      // 查找今日做题记录
+      GetCurrentRecord(appId, this.getNowDate()).then(function (recordRes) {
+        if (recordRes.data.length === 0) {
+          // 今日没打卡
+          that.clockInState = true
+          that.$apply()
+        } else {
+          // 已打卡
+          that.clockInState = false
+          that.recordList = recordRes.data[0]
+          that.recordList.recordDatetime = that.dateDiff(recordRes.data[0].recordDatetime)
+          that.$apply()
+        }
+      })
+    }
+
+    dateDiff(timestamp) {
+      let minute = 1000 * 60
+      let hour = minute * 60
+      let now = new Date().getTime()
+      let diffValue = now - timestamp
+
+      let hourC = diffValue / hour
+      let minC = diffValue / minute
+
+      if (hourC >= 1) {
+        return parseInt(hourC) + '小时前'
+      } else if (minC >= 1) {
+        return parseInt(minC) + '分钟前'
+      }
+      return '刚刚'
+    }
+
+    getNowDate() {
       let date = new Date()
       let nowMonth = date.getMonth() + 1
       let strDate = date.getDate()
@@ -323,26 +376,7 @@
       if (strDate >= 0 && strDate <= 9) {
         strDate = '0' + strDate
       }
-      let nowDate = date.getFullYear() + nowMonth + strDate
-      // 查找该用户的打卡日期clockInDeadline
-      wx.cloud.init() // 初始化数据库
-      const db = wx.cloud.database()
-      db.collection('user').where({
-        userId: appId
-      })
-        .get({
-          success: function(userRes) {
-            if (userRes.data[0].clockInDeadline === nowDate) {
-              // 已打卡
-              that.clockInState = false
-              that.$apply()
-            } else {
-              // 没打卡
-              that.clockInState = true
-              that.$apply()
-            }
-          }
-        })
+      return date.getFullYear() + nowMonth + strDate
     }
   }
 </script>

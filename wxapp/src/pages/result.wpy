@@ -129,7 +129,7 @@
     <view class="result_banner">
       <view class="panel_result_bg"><image class="result_bg" src="../images/result_bg.jpg" mode="top"></image></view>
       <view class="result_item">
-        <view class="score"><text>50  分</text></view>
+        <view class="score"><text>{{answerRecord.score}}  分</text></view>
         <view class="clock_times">
           <image class="sign" src="../images/sign.png"></image>
           <text>你已经打卡1次</text>
@@ -144,29 +144,31 @@
             <image class="answer_icon" src="../images/right.png"></image>
             <text>答对</text>
           </view>
-          <text class="answer_main">1/2 题</text>
+          <text class="answer_main">{{answerRecord.answerRight}}/{{answerRecord.questionTotal}} 题</text>
         </view>
         <view class="panel_answer_item">
           <view class="answer_title">
             <image class="answer_icon" src="../images/time.png"></image>
             <text>时长</text>
           </view>
-          <text class="answer_main">00:32</text>
+          <text class="answer_main">{{answerRecord.answerDuration}}</text>
         </view>
         <view class="panel_answer_item">
           <view class="answer_title">
             <image class="answer_icon" src="../images/right.png"></image>
             <text>正确率</text>
           </view>
-          <text class="answer_main">50%</text>
+          <text class="answer_main">{{answerRecord.score}}%</text>
         </view>
       </view>
     </view>
     <view class="result_main">
       <view class="result_title"><text>答题结果</text></view>
       <view class="result_circle">
-        <view class="circle circle_r" @tap="jumpArticle(0)">1</view>
-        <view class="circle circle_f" @tap="jumpArticle(1)">2</view>
+        <block wx:for="{{answerRight}}" wx:key="index" wx:for-index="index" wx:for-item="item">
+          <view class="circle circle_r" @tap="jumpArticle('{{index}}')" wx:if="{{item === 0}}">{{index + 1}}</view>
+          <view class="circle circle_f" @tap="jumpArticle('{{index}}')" wx:if="{{item === 1}}">{{index + 1}}</view>
+        </block>
       </view>
     </view>
     <view class="return_index" @tap="jumpIndex">
@@ -177,13 +179,17 @@
 
 <script>
   import wepy from 'wepy'
+  import { GetCurrentRecord, GetArticleMain } from '../store/db'
 
   export default class Result extends wepy.page {
     config = {}
 
     components = {}
 
-    data = {}
+    data = {
+      answerRecord: {},
+      answerRight: [] // 答题结果
+    }
 
     computed = {}
 
@@ -194,8 +200,9 @@
         })
       },
       jumpArticle (current) {
+        let that = this
         wx.navigateTo({
-          url: 'article?current=' + current
+          url: 'article?current=' + current + '&recordId=' + that.answerRecord._id
         })
       }
     }
@@ -203,7 +210,40 @@
     events = {}
 
     onLoad() {
+      let that = this
+      GetCurrentRecord(wx.getAccountInfoSync().miniProgram.appId, this.getNowDate()).then(function(recordRes) {
+        that.answerRecord = recordRes.data[0]
+        that.$apply()
+        that.getArticleAnswer()
+      })
+    }
 
+    getArticleAnswer() {
+      let that = this
+      for (let i in this.answerRecord.questionIdList) {
+        GetArticleMain(this.answerRecord.questionIdList[i]).then(function(articleRes) {
+          if (articleRes.data.answer === that.answerRecord.answerList[i]) {
+            that.answerRight[i] = 0
+          } else {
+            that.answerRight[i] = 1
+          }
+          that.$apply()
+        })
+      }
+    }
+
+    getNowDate() {
+      let date = new Date()
+      let nowMonth = date.getMonth() + 1
+      let strDate = date.getDate()
+      if (nowMonth >= 1 && nowMonth <= 9) {
+        nowMonth = '0' + nowMonth
+      }
+      if (strDate >= 0 && strDate <= 9) {
+        strDate = '0' + strDate
+      }
+      let nowDate = date.getFullYear() + nowMonth + strDate
+      return nowDate
     }
   }
 </script>
