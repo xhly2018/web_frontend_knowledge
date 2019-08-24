@@ -179,7 +179,7 @@
 
 <script>
   import wepy from 'wepy'
-  import { GetCurrentRecord, GetArticleMain } from '../store/db'
+  import {GetUserRecord, GetArticleMain} from '../store/db'
 
   export default class Result extends wepy.page {
     config = {}
@@ -211,7 +211,7 @@
 
     onLoad() {
       let that = this
-      GetCurrentRecord(wx.getAccountInfoSync().miniProgram.appId, this.getNowDate()).then(function(recordRes) {
+      GetUserRecord(this.getNowDate()).then(function(recordRes) {
         that.answerRecord = recordRes.data[0]
         that.$apply()
         that.getArticleAnswer()

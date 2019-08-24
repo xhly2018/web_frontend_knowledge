@@ -1,4 +1,5 @@
 import { GetCollection } from './base'
+import { LoginUser } from './user'
 
 export function NewRecord () {
   return {
@@ -35,11 +36,11 @@ export function GetRecord(recordId) {
   })
 }
 
-export function GetCurrentRecord(userId, nowDate) {
+export function GetUserRecord(nowDate) {
   return new Promise((resolve, reject) => {
     let recordCol = GetCollection('record')
     recordCol.where({
-      userId: userId,
+      userId: LoginUser.userId,
       clockInDeadline: nowDate
     }).get({
       success: resolve,

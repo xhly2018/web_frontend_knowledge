@@ -210,7 +210,7 @@
 
 <script>
   import wepy from 'wepy'
-  import {NewRecord, GetArticle, CreateRecord, GetRecord, IncrUserClockInDay} from '../store/db'
+  import {LoginUser, NewRecord, GetArticle, CreateRecord, GetRecord, IncrUserClockInDay} from '../store/db'
 
   export default class Article extends wepy.page {
     config = {
@@ -258,7 +258,7 @@
           }
           let score = parseInt((answerRight / this.articleList.length) * 100)
           let record = NewRecord()
-          record.userId = wx.getAccountInfoSync().miniProgram.appId // 用户ID
+          record.userId = LoginUser.userId // 用户ID
           record.recordDatetime = timestamp // 打卡时间
           record.answerRight = answerRight // 答对题数
           record.answerDuration = that.currentTime // 答题时间
@@ -271,7 +271,7 @@
           CreateRecord(record).then(function (res) {
             console.log('创建成功：', res)
             // 更新打卡天数
-            IncrUserClockInDay(wx.getAccountInfoSync().miniProgram.appId).then(function (res) {
+            IncrUserClockInDay(LoginUser.userId).then(function (res) {
               console.log('打卡天数111+1')
             })
             wx.navigateTo({
@@ -306,6 +306,7 @@
       this.$apply()
       // 从数据库读取题目
       GetArticle().then(function (articleRes) {
+        console.log(articleRes)
         that.articleList = articleRes.data
         that.$apply()
         if (option.recordId !== undefined) {

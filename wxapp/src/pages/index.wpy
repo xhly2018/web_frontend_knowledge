@@ -3,9 +3,11 @@
     width: 90%;
     margin-left: 5%;
   }
+
   .h_20 {
     height: 20px;
   }
+
   .clock_in {
     width: 100%;
     height: 48px;
@@ -262,7 +264,7 @@
 
 <script>
   import wepy from 'wepy'
-  import {GetUser, CreateUser, GetCurrentRecord} from '../store/db'
+  import {Login, GetUserRecord, InitSetting} from '../store/db'
 
   export default class Index extends wepy.page {
     config = {}
@@ -300,6 +302,11 @@
 
     onLoad() {
       const that = this
+
+      InitSetting().then(function () {
+        console.log('获取系统配置成功')
+      })
+
       wx.getSetting({
         success(res) {
           if (res.authSetting['scope.userInfo']) {
@@ -308,7 +315,7 @@
               success: function (userInfoRes) {
                 that.canIUse = false
                 // 获取用户数据
-                that.getUserState(userInfoRes.userInfo)
+                that.getUserState(userInfoRes)
               }
             })
           } else {
@@ -321,10 +328,10 @@
       })
     }
 
-    getClockState(appId) {
+    getClockState() {
       let that = this
       // 查找今日做题记录
-      GetCurrentRecord(appId, this.getNowDate()).then(function (recordRes) {
+      GetUserRecord(this.getNowDate()).then(function (recordRes) {
         if (recordRes.data.length === 0) {
           // 今日没打卡
           that.clockInState = true
@@ -339,24 +346,15 @@
       })
     }
 
-    getUserState(userInfo) {
+    getUserState(userInfoRes) {
       const that = this
-      const accountInfo = wx.getAccountInfoSync() // 用户ID
-      GetUser(accountInfo.miniProgram.appId).then(function (userRes) {
-        if (userRes.data.length === 0) {
-          // 没有该用户，创建用户
-          CreateUser(accountInfo, userInfo).then(function () {
-            console.log('用户创建成功！')
-            that.clockInState = true
-            that.$apply()
-          })
-        } else {
-          // 有该用户
-          console.log('用户已存在！')
-          that.clockInDay = userRes.data[0].clockInDay
-          that.$apply()
-          that.getClockState(accountInfo.miniProgram.appId)
-        }
+
+      Login(userInfoRes).then(function(user) {
+        console.log('用户<' + user.userName + '>登录成功！')
+        that.clockInState = true
+        that.clockInDay = user.clockInDay
+        that.$apply()
+        that.getClockState()
       })
     }
 

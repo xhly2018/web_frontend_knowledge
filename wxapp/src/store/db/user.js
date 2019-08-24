@@ -1,5 +1,7 @@
 import {CMD, GetCollection} from './base'
 
+export var LoginUser = {}
+
 function newUser() {
   return {
     userId: '', // 用户ID
@@ -9,7 +11,23 @@ function newUser() {
   }
 }
 
-export function GetUser(userId) {
+export function Login(userInfoRes) {
+  return new Promise((resolve, reject) => {
+    getUser(userInfoRes.userInfo.nickName).then(function(res) {
+      if(res.data.length === 0) {
+        createUser(userInfoRes).then(function(user) {
+          LoginUser = user
+          resolve(user)
+        })
+      } else {
+        LoginUser = res.data[0]
+        resolve(res.data[0])
+      }
+    })
+  })
+}
+
+function getUser(userId) {
   return new Promise((resolve, reject) => {
     let userCol = GetCollection('user')
     userCol.where({userId: userId}).get({
@@ -19,18 +37,20 @@ export function GetUser(userId) {
   });
 }
 
-export function CreateUser(accountInfo, userInfo) {
+function createUser(userInfoRes) {
   return new Promise((resolve, reject) => {
     let userCol = GetCollection('user')
 
     let user = newUser()
-    user.userId = accountInfo.miniProgram.appId
-    user.userName = userInfo.nickName
-    user.headPortrait = userInfo.avatarUrl
+    user.userId = userInfoRes.userInfo.nickName
+    user.userName = userInfoRes.userInfo.nickName
+    user.headPortrait = userInfoRes.userInfo.avatarUrl
 
     userCol.add({
       data: user,
-      success: resolve,
+      success: function() {
+        resolve(user)
+      },
       fail: reject
     })
   })
@@ -38,7 +58,7 @@ export function CreateUser(accountInfo, userInfo) {
 
 export function IncrUserClockInDay(userId) {
   return new Promise((resolve, reject) => {
-    GetUser(userId).then(function (user) {
+    getUser(userId).then(function (user) {
       let userCol = GetCollection('user')
       userCol.doc(user.data[0]._id).update({
         // data 传入需要局部更新的数据
