@@ -133,28 +133,28 @@
               <radio-group name="radio" bindchange="radioChange">
                 <view class="radio_item">
                   <babel>
-                    <radio value="A"/>
+                    <radio value="A" disabled="{{completed}}" checked="{{completedAnswer.answerA[index]}}"/>
                     A
                   </babel>
                   <view class="answer_item">{{item.optionA}}</view>
                 </view>
                 <view class="radio_item">
                   <babel>
-                    <radio value="B"/>
+                    <radio value="B" disabled="{{completed}}" checked="{{completedAnswer.answerB[index]}}"/>
                     B
                   </babel>
                   <view class="answer_item">{{item.optionB}}</view>
                 </view>
                 <view class="radio_item">
                   <babel>
-                    <radio value="C"/>
+                    <radio value="C" disabled="{{completed}}" checked="{{completedAnswer.answerC[index]}}"/>
                     C
                   </babel>
                   <view class="answer_item">{{item.optionC}}</view>
                 </view>
                 <view class="radio_item">
                   <babel>
-                    <radio value="D}"/>
+                    <radio value="D}" disabled="{{completed}}" checked="{{completedAnswer.answerD[index]}}"/>
                     D
                   </babel>
                   <view class="answer_item">{{item.optionD}}</view>
@@ -165,28 +165,28 @@
               <checkbox-group name="checkbox" bindchange="checkboxChange">
                 <view class="checkbox_item">
                   <babel>
-                    <checkbox value="A"/>
+                    <checkbox value="A" checked="{{completedAnswer.answerA[index]}}" disabled="{{completed}}"/>
                     A
                   </babel>
                   <view class="answer_item">{{item.optionA}}</view>
                 </view>
                 <view class="checkbox_item">
                   <babel>
-                    <checkbox value="B"/>
+                    <checkbox value="B" checked="{{completedAnswer.answerB[index]}}" disabled="{{completed}}"/>
                     B
                   </babel>
                   <view class="answer_item">{{item.optionB}}</view>
                 </view>
                 <view class="checkbox_item">
                   <babel>
-                    <checkbox value="C"/>
+                    <checkbox value="C" checked="{{completedAnswer.answerC[index]}}" disabled="{{completed}}"/>
                     C
                   </babel>
                   <view class="answer_item">{{item.optionC}}</view>
                 </view>
                 <view class="checkbox_item">
                   <babel>
-                    <checkbox value="D"/>
+                    <checkbox value="D" checked="{{completedAnswer.answerD[index]}}" disabled="{{completed}}"/>
                     D
                   </babel>
                   <view class="answer_item">{{item.optionD}}</view>
@@ -196,8 +196,8 @@
             <view class="answers" wx:if="{{completed}}">
               <text class="answer_right_green" wx:if="{{item.isRight === 0}}">回答正确!</text>
               <block wx:if="{{item.isRight === 1}}">
-                <text class="answer_right_red">回答错误!</text>
-                <text>正确答案是</text>
+                <text class="answer_right_red">回答错误! </text>
+                <text>正确答案是 </text>
                 <text class="answer_right_green">{{item.answer}}</text>
               </block>
             </view>
@@ -222,13 +222,15 @@
     components = {}
 
     data = {
-      currentTime: '',
+      timeId: 0,
+      currentTime: '00:00:00',
       index: 1,
       currentIndex: 0,
       articleList: [],
       answerList: [],
       currentAnswer: -1,
-      completed: false // 是否已做题
+      completed: false, // 是否已做题
+      completedAnswer: {} // 做题记录的答案
     }
 
     computed = {}
@@ -311,12 +313,20 @@
           that.completed = true
           GetRecord(option.recordId).then(function(recordRes) {
             // 是否答正确了
+            that.completedAnswer.answerA = []
+            that.completedAnswer.answerB = []
+            that.completedAnswer.answerC = []
+            that.completedAnswer.answerD = []
             for (let i in recordRes.data.answerList) {
               if (recordRes.data.answerList[i] === that.articleList[i].answer) {
                 that.articleList[i].isRight = 0
               } else {
                 that.articleList[i].isRight = 1
               }
+              that.completedAnswer.answerA[i] = recordRes.data.answerList[i].indexOf('A') !== -1
+              that.completedAnswer.answerB[i] = recordRes.data.answerList[i].indexOf('B') !== -1
+              that.completedAnswer.answerC[i] = recordRes.data.answerList[i].indexOf('C') !== -1
+              that.completedAnswer.answerD[i] = recordRes.data.answerList[i].indexOf('D') !== -1
             }
             that.currentAnswer = that.articleList[that.index - 1].isRight
             that.$apply()
@@ -328,11 +338,15 @@
       })
     }
 
+    onUnload() {
+      clearInterval(this.timeId)
+    }
+
     // 时间计时器
     timeFun() {
       let sec = 0
       let that = this
-      setInterval(function () {
+      this.timeId = setInterval(function () {
         sec++
         let date = new Date(0, 0)
         date.setSeconds(sec)

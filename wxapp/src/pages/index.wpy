@@ -2,9 +2,10 @@
   .page {
     width: 90%;
     margin-left: 5%;
-    margin-top: 20px;
   }
-
+  .h_20 {
+    height: 20px;
+  }
   .clock_in {
     width: 100%;
     height: 48px;
@@ -125,25 +126,66 @@
 
 <template>
   <view class="page">
-    <button hidden="{{canIUse}}" open-type="getUserInfo" bindgetuserinfo="bindGetUserInfo">授权登录</button>
-    <view class="clock_in" @tap="changePage" wx:if="{{clockInState}}">
-      <text>立即打卡</text>
-    </view>
-
-    <view class="page__bd">
-      <view class="panel_content" wx:if="{{!clockInState}}">
-        <view class="panel_today">
-          <text class="today_sing">今日已打卡</text>
-          <text class="check_sing">查看日签</text>
+    <view class="h_20"></view>
+    <button wx:if="{{canIUse}}" open-type="getUserInfo" bindgetuserinfo="bindGetUserInfo">授权登录</button>
+    <block wx:else>
+      <view class="clock_in" @tap="changePage" wx:if="{{clockInState}}">
+        <text>立即打卡</text>
+      </view>
+      <view class="page__bd">
+        <view class="panel_content" wx:if="{{!clockInState}}">
+          <view class="panel_today">
+            <text class="today_sing">今日已打卡</text>
+            <text class="check_sing">查看日签</text>
+          </view>
+          <view @tap="jumpResult">
+            <view class="panel_person">
+              <view class="portrait">
+                <open-data type="userAvatarUrl"></open-data>
+              </view>
+              <view class="person_describe">
+                <open-data type="userNickName"></open-data>
+                <text class="time">{{recordList.recordDatetime}}</text>
+              </view>
+            </view>
+            <view class="panel_answer">
+              <view class="panel_answer_item">
+                <view class="answer_title">
+                  <image class="answer_icon" src="../images/right.png"></image>
+                  <text>答对</text>
+                </view>
+                <text class="answer_main">{{recordList.answerRight}}/{{recordList.questionTotal}}题</text>
+              </view>
+              <view class="panel_answer_item">
+                <view class="answer_title">
+                  <image class="answer_icon" src="../images/time.png"></image>
+                  <text>时长</text>
+                </view>
+                <text class="answer_main">{{recordList.answerDuration}}</text>
+              </view>
+              <view class="panel_answer_item">
+                <view class="answer_title">
+                  <image class="answer_icon" src="../images/right.png"></image>
+                  <text>得分</text>
+                </view>
+                <text class="answer_main">{{recordList.score}}分</text>
+              </view>
+            </view>
+            <view class="panel_number">
+              <text>已打卡{{clockInDay}}次</text>
+              <image class="badge" src="../images/badge.png"></image>
+            </view>
+          </view>
         </view>
-        <view @tap="jumpResult">
+        <view class="panel_title">已有100人提交打卡</view>
+        <view class="panel_content">
           <view class="panel_person">
             <view class="portrait">
-              <open-data type="userAvatarUrl"></open-data>
+              <image src="../images/head.jpeg"></image>
             </view>
             <view class="person_describe">
-              <open-data type="userNickName"></open-data>
-              <text class="time">{{recordList.recordDatetime}}</text>
+              <text class="name">白衣少年</text>
+              <text class="time">14分钟前</text>
             </view>
           </view>
           <view class="panel_answer">
@@ -152,107 +194,68 @@
                 <image class="answer_icon" src="../images/right.png"></image>
                 <text>答对</text>
               </view>
-              <text class="answer_main">{{recordList.answerRight}}/{{recordList.questionTotal}}题</text>
+              <text class="answer_main">1/2题</text>
             </view>
             <view class="panel_answer_item">
               <view class="answer_title">
                 <image class="answer_icon" src="../images/time.png"></image>
                 <text>时长</text>
               </view>
-              <text class="answer_main">{{recordList.answerDuration}}</text>
+              <text class="answer_main">00:32</text>
             </view>
             <view class="panel_answer_item">
               <view class="answer_title">
                 <image class="answer_icon" src="../images/right.png"></image>
                 <text>得分</text>
               </view>
-              <text class="answer_main">{{recordList.score}}分</text>
+              <text class="answer_main">50分</text>
             </view>
           </view>
           <view class="panel_number">
-            <text>已打卡{{clockInDay}}次</text>
+            <text>已打卡59次</text>
+            <image class="badge" src="../images/badge.png"></image>
+          </view>
+        </view>
+        <view class="panel_content">
+          <view class="panel_person">
+            <view class="portrait">
+              <image src="../images/head.jpeg"></image>
+            </view>
+            <view class="person_describe">
+              <text class="name">白衣少年</text>
+              <text class="time">14分钟前</text>
+            </view>
+          </view>
+          <view class="panel_answer">
+            <view class="panel_answer_item">
+              <view class="answer_title">
+                <image class="answer_icon" src="../images/right.png"></image>
+                <text>答对</text>
+              </view>
+              <text class="answer_main">1/2题</text>
+            </view>
+            <view class="panel_answer_item">
+              <view class="answer_title">
+                <image class="answer_icon" src="../images/time.png"></image>
+                <text>时长</text>
+              </view>
+              <text class="answer_main">00:32</text>
+            </view>
+            <view class="panel_answer_item">
+              <view class="answer_title">
+                <image class="answer_icon" src="../images/right.png"></image>
+                <text>得分</text>
+              </view>
+              <text class="answer_main">50分</text>
+            </view>
+          </view>
+          <view class="panel_number">
+            <text>已打卡59次</text>
             <image class="badge" src="../images/badge.png"></image>
           </view>
         </view>
       </view>
-      <view class="panel_title">已有100人提交打卡</view>
-      <view class="panel_content">
-        <view class="panel_person">
-          <view class="portrait">
-            <image src="../images/head.jpeg"></image>
-          </view>
-          <view class="person_describe">
-            <text class="name">白衣少年</text>
-            <text class="time">14分钟前</text>
-          </view>
-        </view>
-        <view class="panel_answer">
-          <view class="panel_answer_item">
-            <view class="answer_title">
-              <image class="answer_icon" src="../images/right.png"></image>
-              <text>答对</text>
-            </view>
-            <text class="answer_main">1/2题</text>
-          </view>
-          <view class="panel_answer_item">
-            <view class="answer_title">
-              <image class="answer_icon" src="../images/time.png"></image>
-              <text>时长</text>
-            </view>
-            <text class="answer_main">00:32</text>
-          </view>
-          <view class="panel_answer_item">
-            <view class="answer_title">
-              <image class="answer_icon" src="../images/right.png"></image>
-              <text>得分</text>
-            </view>
-            <text class="answer_main">50分</text>
-          </view>
-        </view>
-        <view class="panel_number">
-          <text>已打卡59次</text>
-          <image class="badge" src="../images/badge.png"></image>
-        </view>
-      </view>
-      <view class="panel_content">
-        <view class="panel_person">
-          <view class="portrait">
-            <image src="../images/head.jpeg"></image>
-          </view>
-          <view class="person_describe">
-            <text class="name">白衣少年</text>
-            <text class="time">14分钟前</text>
-          </view>
-        </view>
-        <view class="panel_answer">
-          <view class="panel_answer_item">
-            <view class="answer_title">
-              <image class="answer_icon" src="../images/right.png"></image>
-              <text>答对</text>
-            </view>
-            <text class="answer_main">1/2题</text>
-          </view>
-          <view class="panel_answer_item">
-            <view class="answer_title">
-              <image class="answer_icon" src="../images/time.png"></image>
-              <text>时长</text>
-            </view>
-            <text class="answer_main">00:32</text>
-          </view>
-          <view class="panel_answer_item">
-            <view class="answer_title">
-              <image class="answer_icon" src="../images/right.png"></image>
-              <text>得分</text>
-            </view>
-            <text class="answer_main">50分</text>
-          </view>
-        </view>
-        <view class="panel_number">
-          <text>已打卡59次</text>
-          <image class="badge" src="../images/badge.png"></image>
-        </view>
-      </view>
-    </view>
+    </block>
   </view>
 </template>
 
@@ -287,6 +290,9 @@
       },
       bindGetUserInfo(e) {
         console.log(e.detail.userInfo)
+        this.canIUse = false
+        this.getUserState(e.detail.userInfo)
+        this.$apply()
       }
     }
 
@@ -297,35 +303,19 @@
       wx.getSetting({
         success(res) {
           if (res.authSetting['scope.userInfo']) {
-            // 已经授权，可以直接调用 getUserInfo 获取头像昵称
+            // 已经授权
             wx.getUserInfo({
               success: function (userInfoRes) {
-                const accountInfo = wx.getAccountInfoSync() // 用户ID
-                // 查看数据库是否有该用户
-                GetUser(accountInfo.miniProgram.appId).then(function (userRes) {
-                  if (userRes.data.length === 0) {
-                    CreateUser(accountInfo, userInfoRes.userInfo).then(function () {
-                      console.log('用户创建成功！')
-                      that.clockInState = true
-                      that.$apply()
-                    })
-                  } else {
-                    // 有该用户
-                    console.log('用户已存在！')
-                    that.clockInDay = userRes.data[0].clockInDay
-                    that.$apply()
-                    that.getClockState(accountInfo.miniProgram.appId)
-                  }
-                })
+                that.canIUse = false
+                // 获取用户数据
+                that.getUserState(userInfoRes.userInfo)
               }
             })
           } else {
             // 没有授权
-            wx.showToast({
-              title: '没有授权',
-              icon: 'success',
-              duration: 2000
-            })
+            console.log('没有授权')
+            that.canIUse = true
+            that.$apply()
           }
         }
       })
@@ -345,6 +335,27 @@
           that.recordList = recordRes.data[0]
           that.recordList.recordDatetime = that.dateDiff(recordRes.data[0].recordDatetime)
           that.$apply()
+        }
+      })
+    }
+
+    getUserState(userInfo) {
+      const that = this
+      const accountInfo = wx.getAccountInfoSync() // 用户ID
+      GetUser(accountInfo.miniProgram.appId).then(function (userRes) {
+        if (userRes.data.length === 0) {
+          // 没有该用户，创建用户
+          CreateUser(accountInfo, userInfo).then(function () {
+            console.log('用户创建成功！')
+            that.clockInState = true
+            that.$apply()
+          })
+        } else {
+          // 有该用户
+          console.log('用户已存在！')
+          that.clockInDay = userRes.data[0].clockInDay
+          that.$apply()
+          that.getClockState(accountInfo.miniProgram.appId)
         }
       })
     }
