@@ -296,10 +296,9 @@
         record.clockInDeadline = that.getNowDate()
 
         CreateRecord(record).then(function (res) {
-          console.log('创建成功：', res)
           // 更新打卡天数
-          IncrUserClockInDay(LoginUser.userId).then(function (res) {
-            console.log('打卡天数111+1')
+          IncrUserClockInDay().then(function (res) {
+            console.log('打卡天数: ', LoginUser.clockInDay)
           })
           wx.navigateTo({
             url: 'result'
@@ -308,11 +307,9 @@
       },
       radioChange(e) {
         this.answerList[this.index - 1] = e.detail.value
-        console.log('选择的答案：', this.answerList)
       },
       checkboxChange(e) {
         this.answerList[this.index - 1] = e.detail.value.sort().join(',')
-        console.log('选择的答案：', this.answerList)
       }
     }
 

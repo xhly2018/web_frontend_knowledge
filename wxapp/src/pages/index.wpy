@@ -252,22 +252,26 @@
           url: 'result'
         })
       },
-      bindGetUserInfo(e) {
-        console.log(e.detail.userInfo)
-        this.canIUse = false
-        this.getUserState(e.detail.userInfo)
-        this.$apply()
+      bindGetUserInfo() {
+        this.init()
       }
     }
 
     onLoad() {
-      let that = this
-
       // 获取系统配置
       InitSetting().then(function () {
         console.log('获取系统配置完成')
       })
 
+      this.init()
+    }
+
+    onShow() {
+      this.render()
+    }
+
+    init() {
+      let that = this
       // 授权
       this.authorize().then(function () {
         that.authorized = true
@@ -278,20 +282,22 @@
           that.authorizationInfo = userInfoRes
           console.log('获取用户信息完成')
 
-          // 登录
-          Login(userInfoRes).then(function (user) {
-            console.log('用户<' + user.userName + '>登录成功！')
-            that.user = user
-            that.$apply()
+          wx.cloud.callFunction({
+            name: 'getOpenId',
+            complete: res => {
+              console.log('云函数获取到的openid: ', res.result.openid)
+              // 登录
+              Login(res.result.openid, userInfoRes).then(function (user) {
+                console.log('用户<' + user.userName + '>登录成功！')
+                that.user = user
+                that.$apply()
 
-            that.render()
+                that.render()
+              })
+            }
           })
         })
       })
-    }
-
-    onShow() {
-      this.render()
     }
 
     authorize() {

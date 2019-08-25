@@ -1,5 +1,6 @@
 {
 	"description": "A WePY project",
+	"cloudfunctionRoot": "functions/",
 	"setting": {
 		"urlCheck": true,
 		"es6": false,
@@ -12,5 +13,6 @@
 	"miniprogramRoot": "dist/",
 	"simulatorType": "wechat",
 	"simulatorPluginLibVersion": {},
+	"cloudfunctionTemplateRoot": "cloudfunctionTemplate",
 	"condition": {}
 }
