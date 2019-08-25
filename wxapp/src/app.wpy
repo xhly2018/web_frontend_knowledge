@@ -40,17 +40,20 @@ export default class extends wepy.app {
         text: '首页',
         iconPath: 'images/home.png',
         selectedIconPath: 'images/home_HL.png'
-      }, {
-        pagePath: 'pages/index2',
+      },
+      {
+        pagePath: 'pages/index',
         text: '排行',
         iconPath: 'images/ranking.png',
         selectedIconPath: 'images/ranking_HL.png'
-      }, {
-        pagePath: 'pages/index2',
+      },
+      {
+        pagePath: 'pages/index',
         text: '个人',
         iconPath: 'images/person.png',
         selectedIconPath: 'images/person_HL.png'
-      }]
+      }
+      ]
     }
   }
 
