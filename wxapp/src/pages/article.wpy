@@ -196,8 +196,8 @@
             <view class="answers" wx:if="{{completed}}">
               <text class="answer_right_green" wx:if="{{item.isRight === 0}}">回答正确!</text>
               <block wx:if="{{item.isRight === 1}}">
-                <text class="answer_right_red">回答错误! </text>
-                <text>正确答案是 </text>
+                <text class="answer_right_red">回答错误!</text>
+                <text>正确答案是</text>
                 <text class="answer_right_green">{{item.answer}}</text>
               </block>
             </view>
@@ -210,7 +210,15 @@
 
 <script>
   import wepy from 'wepy'
-  import {LoginUser, NewRecord, GetTodayArticle, CreateRecord, GetRecord, IncrUserClockInDay, GetArticles} from '../store/db'
+  import {
+    LoginUser,
+    NewRecord,
+    GetTodayArticle,
+    CreateRecord,
+    GetRecord,
+    IncrUserClockInDay,
+    GetArticles
+  } from '../store/db'
 
   export default class Article extends wepy.page {
     data = {
@@ -222,7 +230,8 @@
       answerList: [],
       currentAnswer: -1, // 0:答对了 1：答错了
       completed: false, // 是否已做题
-      completedAnswer: {} // 做题记录的答案
+      completedAnswer: {}, // 做题记录的答案
+      hasSubmit: false // 是否已提交
     }
 
     methods = {
@@ -232,49 +241,70 @@
         this.$apply()
       },
       submitAnswer() {
-        let that = this
-        if (this.answerList.length === this.articleList.length) {
-          // 提交
-          let timestamp = (new Date()).getTime()
-          let answerRight = 0 // 答对题数
-          let questionIdList = [] // 问题id列表
-          let answerList = [] // 答案列表
-          for (let i in this.articleList) {
-            questionIdList.push(this.articleList[i]._id)
-            answerList.push(this.articleList[i].answer)
-            if (this.articleList[i].answer === this.answerList[i]) {
-              answerRight++
-            }
-          }
-          let score = parseInt((answerRight / this.articleList.length) * 100)
-          let record = NewRecord()
-          record.recordDatetime = timestamp // 打卡时间
-          record.answerRight = answerRight // 答对题数
-          record.answerDuration = that.currentTime // 答题时间
-          record.score = score // 得分
-          record.questionTotal = that.articleList.length // 总题数
-          record.questionIdList = questionIdList // 问题id列表
-          record.answerList = that.answerList // 答案列表
-          record.clockInDeadline = that.getNowDate()
-
-          CreateRecord(record).then(function (res) {
-            console.log('创建成功：', res)
-            // 更新打卡天数
-            IncrUserClockInDay(LoginUser.userId).then(function (res) {
-              console.log('打卡天数111+1')
-            })
-            wx.navigateTo({
-              url: 'result'
-            })
-          })
-        } else {
+        // 是否漏做题目
+        if (this.answerList.length !== this.articleList.length) {
           // 做题不完整，无法提交
           wx.showToast({
             title: '请作答完毕后再提交',
             icon: 'none',
             duration: 1000
           })
+          return
         }
+
+        // 判断是否有未选择的题目
+        for (let i in this.answerList) {
+          if (this.answerList[i] === '' || this.answerList[i] === undefined || this.answerList[i] === null) {
+            // 做题不完整，无法提交
+            wx.showToast({
+              title: '请作答完毕后再提交',
+              icon: 'none',
+              duration: 1000
+            })
+            return
+          }
+        }
+
+        if (this.hasSubmit) {
+          return
+        }
+
+        this.hasSubmit = true
+
+        let that = this
+        // 提交
+        let timestamp = (new Date()).getTime()
+        let answerRight = 0 // 答对题数
+        let questionIdList = [] // 问题id列表
+        let answerList = [] // 答案列表
+        for (let i in this.articleList) {
+          questionIdList.push(this.articleList[i]._id)
+          answerList.push(this.articleList[i].answer)
+          if (this.articleList[i].answer === this.answerList[i]) {
+            answerRight++
+          }
+        }
+        let score = parseInt((answerRight / this.articleList.length) * 100)
+        let record = NewRecord()
+        record.recordDatetime = timestamp // 打卡时间
+        record.answerRight = answerRight // 答对题数
+        record.answerDuration = that.currentTime // 答题时间
+        record.score = score // 得分
+        record.questionTotal = that.articleList.length // 总题数
+        record.questionIdList = questionIdList // 问题id列表
+        record.answerList = that.answerList // 答案列表
+        record.clockInDeadline = that.getNowDate()
+
+        CreateRecord(record).then(function (res) {
+          console.log('创建成功：', res)
+          // 更新打卡天数
+          IncrUserClockInDay(LoginUser.userId).then(function (res) {
+            console.log('打卡天数111+1')
+          })
+          wx.navigateTo({
+            url: 'result'
+          })
+        })
       },
       radioChange(e) {
         this.answerList[this.index - 1] = e.detail.value
@@ -305,28 +335,42 @@
     // 获取做题记录
     getRecord(option) {
       let that = this
-      GetRecord(option.recordId).then(function(recordRes) {
+      GetRecord(option.recordId).then(function (recordRes) {
         // 获取指定article
-        that.getArticles(recordRes.data.questionIdList).then(function(articles) {
+        that.getArticles(recordRes.data.questionIdList).then(function (articles) {
           // 是否答正确了
           that.completedAnswer.answerA = []
           that.completedAnswer.answerB = []
           that.completedAnswer.answerC = []
           that.completedAnswer.answerD = []
 
-          that.articleList = articles.data
-          for (let i in that.articleList) {
-            if (recordRes.data.answerList[i] === that.articleList[i].answer) {
-              that.articleList[i].isRight = 0
+          // 建立articleId => 题目编号的索引
+          let articlesIdMap = {}
+          for (let i in recordRes.data.questionIdList) {
+            articlesIdMap[recordRes.data.questionIdList[i]] = i
+          }
+
+          for (let j in articles.data) {
+            let articleInfo = articles.data[j]
+
+            // 获取题目对应的编号
+            let i = articlesIdMap[articleInfo._id]
+
+            that.articleList[i] = articleInfo
+
+            if (recordRes.data.answerList[i] === articleInfo.answer) {
+              articleInfo.isRight = 0
             } else {
-              that.articleList[i].isRight = 1
+              articleInfo.isRight = 1
             }
             that.completedAnswer.answerA[i] = recordRes.data.answerList[i].indexOf('A') !== -1
             that.completedAnswer.answerB[i] = recordRes.data.answerList[i].indexOf('B') !== -1
             that.completedAnswer.answerC[i] = recordRes.data.answerList[i].indexOf('C') !== -1
             that.completedAnswer.answerD[i] = recordRes.data.answerList[i].indexOf('D') !== -1
-            that.currentAnswer = that.articleList[that.index - 1].isRight
           }
+
+          that.currentAnswer = that.articleList[that.index - 1].isRight
+
           that.$apply()
         })
       })
@@ -335,7 +379,7 @@
     // 获取指定articles
     getArticles(articleIds) {
       return new Promise((resolve, reject) => {
-        GetArticles(articleIds).then(function(articles) {
+        GetArticles(articleIds).then(function (articles) {
           resolve(articles)
         })
       })
