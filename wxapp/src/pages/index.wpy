@@ -129,7 +129,7 @@
 <template>
   <view class="page">
     <view class="h_20"></view>
-    <button wx:if="{{canIUse}}" open-type="getUserInfo" bindgetuserinfo="bindGetUserInfo">授权登录</button>
+    <button wx:if="{{authorized === false}}" open-type="getUserInfo" bindgetuserinfo="bindGetUserInfo">授权登录</button>
     <block wx:else>
       <view class="clock_in" @tap="changePage" wx:if="{{clockInState}}">
         <text>立即打卡</text>
@@ -174,7 +174,7 @@
               </view>
             </view>
             <view class="panel_number">
-              <text>已打卡{{clockInDay}}次</text>
+              <text>已打卡{{user.clockInDay}}次</text>
               <image class="badge" src="../images/badge.png"></image>
             </view>
           </view>
@@ -228,21 +228,18 @@
 <script>
   import wepy from 'wepy'
   import {Login, GetUserRecord, InitSetting, GetOtherRecord} from '../store/db'
+  import {DateDiff} from '../store/tools'
 
   export default class Index extends wepy.page {
-    config = {}
-
-    components = {}
-
     data = {
-      canIUse: wx.canIUse('button.open-type.getUserInfo'),
-      clockInState: false,
-      recordList: {},
-      clockInDay: 0,
+      authorized: false, // 是否授权
+      authorizationInfo: {}, // 用户授权信息
+      clockInState: false, // 是否已打卡
+      user: {}, // 用户信息
+      recordList: {}, // 自己的打卡记录
       otherRecordList: [], // 其他用户打卡记录
       clockInNumber: 0 // 打卡人数
     }
-    computed = {}
 
     methods = {
       changePage() {
@@ -263,102 +260,95 @@
       }
     }
 
-    events = {}
-
     onLoad() {
-      const that = this
+      let that = this
 
+      // 获取系统配置
       InitSetting().then(function () {
-        console.log('获取系统配置成功')
+        console.log('获取系统配置完成')
       })
 
-      wx.getSetting({
-        success(res) {
-          if (res.authSetting['scope.userInfo']) {
-            // 已经授权
-            wx.getUserInfo({
-              success: function (userInfoRes) {
-                that.canIUse = false
-                // 获取用户数据
-                that.getUserState(userInfoRes)
-              }
-            })
+      // 授权
+      this.authorize().then(function () {
+        that.authorized = true
+        console.log('授权完成')
+
+        // 获取用户信息
+        that.getUserInfo().then(function (userInfoRes) {
+          that.authorizationInfo = userInfoRes
+          console.log('获取用户信息完成')
+
+          // 登录
+          Login(userInfoRes).then(function (user) {
+            console.log('用户<' + user.userName + '>登录成功！')
+            that.user = user
+            that.$apply()
+
+            that.render()
+          })
+        })
+      })
+    }
+
+    onShow() {
+      this.render()
+    }
+
+    authorize() {
+      return new Promise((resolve, reject) => {
+        wx.getSetting({
+          success(res) {
+            if (res.authSetting['scope.userInfo']) {
+              // 已经授权
+              resolve()
+            } else {
+              // 没有授权
+              console.log('没有授权')
+            }
+          }
+        })
+      })
+    }
+
+    getUserInfo() {
+      return new Promise((resolve, reject) => {
+        wx.getUserInfo({
+          success: function (userInfoRes) {
+            resolve(userInfoRes)
+          }
+        })
+      })
+    }
+
+    render() {
+      let that = this
+
+      if (this.authorized) {
+        // 查找我的做题记录
+        GetUserRecord().then(function (recordRes) {
+          if (recordRes.data.length === 0) {
+            // 今日没打卡
+            that.clockInState = true
+            that.clockInNumber = that.otherRecordList.length
+            that.$apply()
           } else {
-            // 没有授权
-            console.log('没有授权')
-            that.canIUse = true
+            // 已打卡
+            that.clockInState = false
+            that.recordList = recordRes.data[0]
+            that.recordList.recordDatetime = DateDiff(recordRes.data[0].recordDatetime)
+            that.clockInNumber = that.otherRecordList.length + 1
             that.$apply()
           }
-        }
-      })
-    }
+          console.log('显示个人打卡记录成功')
+        })
 
-    getClockState() {
-      let that = this
-      // 查找今日做题记录
-      GetUserRecord(this.getNowDate()).then(function (recordRes) {
-        if (recordRes.data.length === 0) {
-          // 今日没打卡
-          that.clockInState = true
-          that.clockInNumber = that.otherRecordList.length
-          that.$apply()
-        } else {
-          // 已打卡
-          that.clockInState = false
-          that.recordList = recordRes.data[0]
-          that.recordList.recordDatetime = that.dateDiff(recordRes.data[0].recordDatetime)
-          that.clockInNumber = that.otherRecordList.length + 1
-          that.$apply()
-        }
-      })
-    }
-
-    getUserState(userInfoRes) {
-      const that = this
-
-      Login(userInfoRes).then(function(user) {
-        console.log('用户<' + user.userName + '>登录成功！')
-        that.clockInState = true
-        that.clockInDay = user.clockInDay
-        that.$apply()
         // 获取其他人打卡记录
-        GetOtherRecord(that.getNowDate()).then(function (recordRes) {
-          console.log('打卡记录', recordRes)
+        GetOtherRecord().then(function (recordRes) {
           that.otherRecordList = recordRes.data
           that.$apply()
+          console.log('显示他人打卡记录成功')
         })
-        that.getClockState()
-      })
-    }
-
-    dateDiff(timestamp) {
-      let minute = 1000 * 60
-      let hour = minute * 60
-      let now = new Date().getTime()
-      let diffValue = now - timestamp
-
-      let hourC = diffValue / hour
-      let minC = diffValue / minute
-
-      if (hourC >= 1) {
-        return parseInt(hourC) + '小时前'
-      } else if (minC >= 1) {
-        return parseInt(minC) + '分钟前'
       }
-      return '刚刚'
-    }
-
-    getNowDate() {
-      let date = new Date()
-      let nowMonth = date.getMonth() + 1
-      let strDate = date.getDate()
-      if (nowMonth >= 1 && nowMonth <= 9) {
-        nowMonth = '0' + nowMonth
-      }
-      if (strDate >= 0 && strDate <= 9) {
-        strDate = '0' + strDate
-      }
-      return date.getFullYear() + nowMonth + strDate
     }
   }
 </script>

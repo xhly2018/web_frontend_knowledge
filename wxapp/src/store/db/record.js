@@ -15,6 +15,19 @@ export function NewRecord () {
   }
 }
 
+function getNowDate() {
+  let date = new Date()
+  let nowMonth = date.getMonth() + 1
+  let strDate = date.getDate()
+  if (nowMonth >= 1 && nowMonth <= 9) {
+    nowMonth = '0' + nowMonth
+  }
+  if (strDate >= 0 && strDate <= 9) {
+    strDate = '0' + strDate
+  }
+  return date.getFullYear() + nowMonth + strDate
+}
+
 export function CreateRecord(record) {
   record.user = {
     userId: LoginUser.userId,
@@ -43,12 +56,12 @@ export function GetRecord(recordId) {
   })
 }
 
-export function GetUserRecord(nowDate) {
+export function GetUserRecord() {
   return new Promise((resolve, reject) => {
     let recordCol = GetCollection('record')
     recordCol.where({
       'user.userId': LoginUser.userId,
-      clockInDeadline: nowDate
+      clockInDeadline: getNowDate()
     }).get({
       success: resolve,
       fail: reject
@@ -56,12 +69,11 @@ export function GetUserRecord(nowDate) {
   })
 }
 
-export function GetOtherRecord(deadline) {
+export function GetOtherRecord() {
   return new Promise((resolve, reject) => {
     let recordCol = GetCollection('record')
-    console.log(LoginUser.userId)
     recordCol.where({
-      clockInDeadline: deadline,
+      clockInDeadline: getNowDate(),
       'user.userId': CMD.neq(LoginUser.userId)
     }).get({
       success: resolve,
