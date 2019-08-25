@@ -258,7 +258,6 @@
           }
           let score = parseInt((answerRight / this.articleList.length) * 100)
           let record = NewRecord()
-          record.userId = LoginUser.userId // 用户ID
           record.recordDatetime = timestamp // 打卡时间
           record.answerRight = answerRight // 答对题数
           record.answerDuration = that.currentTime // 答题时间

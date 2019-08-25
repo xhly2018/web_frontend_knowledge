@@ -134,7 +134,7 @@
       <view class="clock_in" @tap="changePage" wx:if="{{clockInState}}">
         <text>立即打卡</text>
       </view>
-      <view class="page__bd">
+      <scroll-view scroll-y class="page__bd">
         <view class="panel_content" wx:if="{{!clockInState}}">
           <view class="panel_today">
             <text class="today_sing">今日已打卡</text>
@@ -179,14 +179,15 @@
             </view>
           </view>
         </view>
-        <view class="panel_title">已有100人提交打卡</view>
-        <view class="panel_content">
+        <view class="panel_title">已有{{clockInNumber}}人提交打卡</view>
+        <view class="panel_content" wx:for="{{otherRecordList}}" wx:key="index" wx:for-index="index"
+              wx:for-item="item">
           <view class="panel_person">
             <view class="portrait">
-              <image src="../images/head.jpeg"></image>
+              <image src="{{item.user.headPortrait}}"></image>
             </view>
             <view class="person_describe">
-              <text class="name">白衣少年</text>
+              <text class="name">{{item.user.userName}}</text>
               <text class="time">14分钟前</text>
             </view>
           </view>
@@ -196,67 +197,29 @@
                 <image class="answer_icon" src="../images/right.png"></image>
                 <text>答对</text>
               </view>
-              <text class="answer_main">1/2题</text>
+              <text class="answer_main">{{item.answerRight}}/{{item.questionTotal}}题</text>
             </view>
             <view class="panel_answer_item">
               <view class="answer_title">
                 <image class="answer_icon" src="../images/time.png"></image>
                 <text>时长</text>
               </view>
-              <text class="answer_main">00:32</text>
+              <text class="answer_main">{{item.answerDuration}}</text>
             </view>
             <view class="panel_answer_item">
               <view class="answer_title">
                 <image class="answer_icon" src="../images/right.png"></image>
                 <text>得分</text>
               </view>
-              <text class="answer_main">50分</text>
+              <text class="answer_main">{{item.score}}分</text>
             </view>
           </view>
           <view class="panel_number">
-            <text>已打卡59次</text>
+            <text>已打卡{{item.user.clockInDay}}次</text>
             <image class="badge" src="../images/badge.png"></image>
           </view>
         </view>
-        <view class="panel_content">
-          <view class="panel_person">
-            <view class="portrait">
-              <image src="../images/head.jpeg"></image>
-            </view>
-            <view class="person_describe">
-              <text class="name">白衣少年</text>
-              <text class="time">14分钟前</text>
-            </view>
-          </view>
-          <view class="panel_answer">
-            <view class="panel_answer_item">
-              <view class="answer_title">
-                <image class="answer_icon" src="../images/right.png"></image>
-                <text>答对</text>
-              </view>
-              <text class="answer_main">1/2题</text>
-            </view>
-            <view class="panel_answer_item">
-              <view class="answer_title">
-                <image class="answer_icon" src="../images/time.png"></image>
-                <text>时长</text>
-              </view>
-              <text class="answer_main">00:32</text>
-            </view>
-            <view class="panel_answer_item">
-              <view class="answer_title">
-                <image class="answer_icon" src="../images/right.png"></image>
-                <text>得分</text>
-              </view>
-              <text class="answer_main">50分</text>
-            </view>
-          </view>
-          <view class="panel_number">
-            <text>已打卡59次</text>
-            <image class="badge" src="../images/badge.png"></image>
-          </view>
-        </view>
-      </view>
+      </scroll-view>
     </block>
   </view>
 </template>
@@ -264,7 +227,7 @@
 
 <script>
   import wepy from 'wepy'
-  import {Login, GetUserRecord, InitSetting} from '../store/db'
+  import {Login, GetUserRecord, InitSetting, GetOtherRecord} from '../store/db'
 
   export default class Index extends wepy.page {
     config = {}
@@ -275,7 +238,9 @@
       canIUse: wx.canIUse('button.open-type.getUserInfo'),
       clockInState: false,
       recordList: {},
-      clockInDay: 0
+      clockInDay: 0,
+      otherRecordList: [], // 其他用户打卡记录
+      clockInNumber: 0 // 打卡人数
     }
     computed = {}
 
@@ -335,12 +300,14 @@
         if (recordRes.data.length === 0) {
           // 今日没打卡
           that.clockInState = true
+          that.clockInNumber = that.otherRecordList.length
           that.$apply()
         } else {
           // 已打卡
           that.clockInState = false
           that.recordList = recordRes.data[0]
           that.recordList.recordDatetime = that.dateDiff(recordRes.data[0].recordDatetime)
+          that.clockInNumber = that.otherRecordList.length + 1
           that.$apply()
         }
       })
@@ -354,6 +321,12 @@
         that.clockInState = true
         that.clockInDay = user.clockInDay
         that.$apply()
+        // 获取其他人打卡记录
+        GetOtherRecord(that.getNowDate()).then(function (recordRes) {
+          console.log('打卡记录', recordRes)
+          that.otherRecordList = recordRes.data
+          that.$apply()
+        })
         that.getClockState()
       })
     }
