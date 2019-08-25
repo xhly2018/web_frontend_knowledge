@@ -1,4 +1,4 @@
-import { GetCollection } from './base'
+import { CMD, GetCollection } from './base'
 import { Shuffle } from '../tools'
 function NewArticle() {
   return {
@@ -72,7 +72,15 @@ export function GetTodayArticle() {
 }
 
 export function GetArticles(articleIds) {
-
+  return new Promise((resolve, reject) => {
+    let articleCol = GetCollection('article')
+    articleCol.where({
+      _id: CMD.in(articleIds)
+    }).get({
+      success: resolve,
+      fail: reject
+    })
+  })
 }
 
 export function GetArticleMain(articleId) {

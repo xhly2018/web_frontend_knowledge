@@ -210,17 +210,9 @@
 
 <script>
   import wepy from 'wepy'
-  import {LoginUser, NewRecord, GetTodayArticle, CreateRecord, GetRecord, IncrUserClockInDay} from '../store/db'
+  import {LoginUser, NewRecord, GetTodayArticle, CreateRecord, GetRecord, IncrUserClockInDay, GetArticles} from '../store/db'
 
   export default class Article extends wepy.page {
-    config = {
-      window: {
-        navigationBarTitleText: '今日打卡'
-      }
-    }
-
-    components = {}
-
     data = {
       timeId: 0,
       currentTime: '00:00:00',
@@ -228,12 +220,10 @@
       currentIndex: 0,
       articleList: [],
       answerList: [],
-      currentAnswer: -1,
+      currentAnswer: -1, // 0:答对了 1：答错了
       completed: false, // 是否已做题
       completedAnswer: {} // 做题记录的答案
     }
-
-    computed = {}
 
     methods = {
       changeIndex(event) {
@@ -296,45 +286,67 @@
       }
     }
 
-    events = {}
-
     onLoad(option) {
       let that = this
       this.currentIndex = parseInt(option.current)
       this.index = parseInt(option.current) + 1
       this.$apply()
-      // 从数据库读取题目
+      if (option.recordId !== undefined) {
+        // 已做题,根据record记录获取指定articles
+        that.completed = true
+        this.getRecord(option)
+      } else {
+        // 没有做题,随机获取articles
+        this.timeFun()
+        this.getRandArticles()
+      }
+    }
+
+    // 获取做题记录
+    getRecord(option) {
+      let that = this
+      GetRecord(option.recordId).then(function(recordRes) {
+        // 获取指定article
+        that.getArticles(recordRes.data.questionIdList).then(function(articles) {
+          // 是否答正确了
+          that.completedAnswer.answerA = []
+          that.completedAnswer.answerB = []
+          that.completedAnswer.answerC = []
+          that.completedAnswer.answerD = []
+
+          that.articleList = articles.data
+          for (let i in that.articleList) {
+            if (recordRes.data.answerList[i] === that.articleList[i].answer) {
+              that.articleList[i].isRight = 0
+            } else {
+              that.articleList[i].isRight = 1
+            }
+            that.completedAnswer.answerA[i] = recordRes.data.answerList[i].indexOf('A') !== -1
+            that.completedAnswer.answerB[i] = recordRes.data.answerList[i].indexOf('B') !== -1
+            that.completedAnswer.answerC[i] = recordRes.data.answerList[i].indexOf('C') !== -1
+            that.completedAnswer.answerD[i] = recordRes.data.answerList[i].indexOf('D') !== -1
+            that.currentAnswer = that.articleList[that.index - 1].isRight
+          }
+          that.$apply()
+        })
+      })
+    }
+
+    // 获取指定articles
+    getArticles(articleIds) {
+      return new Promise((resolve, reject) => {
+        GetArticles(articleIds).then(function(articles) {
+          resolve(articles)
+        })
+      })
+    }
+
+    // 获取随机articles
+    getRandArticles() {
+      let that = this
       GetTodayArticle().then(function (articles) {
-        console.log(articles)
         that.articleList = articles
         that.$apply()
-        if (option.recordId !== undefined) {
-          // 有记录，页面显示已做
-          that.completed = true
-          GetRecord(option.recordId).then(function(recordRes) {
-            // 是否答正确了
-            that.completedAnswer.answerA = []
-            that.completedAnswer.answerB = []
-            that.completedAnswer.answerC = []
-            that.completedAnswer.answerD = []
-            for (let i in recordRes.data.answerList) {
-              if (recordRes.data.answerList[i] === that.articleList[i].answer) {
-                that.articleList[i].isRight = 0
-              } else {
-                that.articleList[i].isRight = 1
-              }
-              that.completedAnswer.answerA[i] = recordRes.data.answerList[i].indexOf('A') !== -1
-              that.completedAnswer.answerB[i] = recordRes.data.answerList[i].indexOf('B') !== -1
-              that.completedAnswer.answerC[i] = recordRes.data.answerList[i].indexOf('C') !== -1
-              that.completedAnswer.answerD[i] = recordRes.data.answerList[i].indexOf('D') !== -1
-            }
-            that.currentAnswer = that.articleList[that.index - 1].isRight
-            that.$apply()
-          })
-        } else {
-          // 没记录，没做题
-          that.timeFun()
-        }
       })
     }
 
